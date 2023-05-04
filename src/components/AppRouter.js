@@ -2,7 +2,6 @@ import {
     BrowserRouter as Router,
     Routes,
     Route,
-    Navigage,
     Navigate,
 } from "react-router-dom";
 import LoginPage from "../routes/LoginPage";

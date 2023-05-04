@@ -12,7 +12,6 @@ function App() {
             if (user) {
                 setIsLoggedIn(true);
                 setUsetObj(user);
-                console.log("로그인 정보:", user);
             } else {
                 setIsLoggedIn(false);
             }

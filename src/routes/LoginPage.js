@@ -30,7 +30,7 @@ function LoginPage() {
             </form>
             <div>
                 <button onClick={onSocialClick} name="google">
-                    Continue with Google
+                    Google 계정으로 계속하기
                 </button>
             </div>
         </div>
