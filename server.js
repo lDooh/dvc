@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const path = require("path");
 require("dotenv").config();
+const userModel = require("./src/models/userModel");
 
 const app = express();
 
@@ -17,6 +18,46 @@ app.get("*", (res, req) => {
 const httpServer = http.createServer(app);
 const ioServer = new Server(httpServer);
 
+ioServer.on("connection", (socket) => {
+    console.log("연결");
+
+    socket.on("socialLogin", (uid) => {
+        userModel.findUserByUid(uid, (err, results) => {
+            if (err) {
+                console.error("findUserByUid error: ", err);
+                return;
+            }
+
+            // signup
+            if (results.length == 0) {
+                userModel.signUpUser(uid, "", "", (err, nickname, results) => {
+                    if (err) {
+                        console.error("signUpUser error: ", err);
+                        return;
+                    }
+                    // Emit newly created nickname
+                    socket.emit("nickname", nickname);
+                });
+            }
+        });
+    });
+
+    socket.on("emailSignUp", (uid, password, nickname) => {
+        userModel.signUpUser(uid, password, nickname, (err, nick, results) => {
+            if (err) {
+                if (err) {
+                    console.error("signUpUser error: ", err);
+                }
+            }
+            socket.emit("nickname", nickname);
+        });
+    });
+
+    socket.on("signUp", (uid) => {
+        console.log("signIn: ", uid);
+    });
+});
+
 const serverUrl = "http://localhost";
 const port = 3000;
 const handleListen = () => {
@@ -29,12 +70,3 @@ process.once("SIGINT", () => {
 });
 
 httpServer.listen(3000, handleListen);
-
-// for test
-const userModel = require("./src/models/userModel");
-userModel.getAllUsers((err, results) => {
-    if (err) {
-        console.error("getAllUser error: ", err);
-    }
-    console.log(results);
-});

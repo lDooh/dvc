@@ -4,7 +4,7 @@ function Home({ userObj }) {
     return (
         <>
             <h1>Home</h1>
-            <Profile />
+            <Profile userObj={userObj} />
         </>
     );
 }

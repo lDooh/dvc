@@ -7,7 +7,7 @@ import {
 import LoginPage from "../routes/LoginPage";
 import Home from "../routes/Home";
 
-function AppRouter({ isLoggedIn, userObj }) {
+function AppRouter({ isLoggedIn, userObj, frontSocket }) {
     return (
         <Router>
             <Routes>
@@ -20,7 +20,13 @@ function AppRouter({ isLoggedIn, userObj }) {
                         />
                     </>
                 ) : (
-                    <Route exact path="/" element={<LoginPage></LoginPage>} />
+                    <Route
+                        exact
+                        path="/"
+                        element={
+                            <LoginPage frontSocket={frontSocket}></LoginPage>
+                        }
+                    />
                 )}
                 <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>
