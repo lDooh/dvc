@@ -1,0 +1,23 @@
+.container {
+    display: flex;
+    flex-direction: row;
+}
+
+.home {
+    height: 80vh;
+}
+
+.home1 {
+    background-color: lavender;
+    flex: 0 0 30%;
+}
+
+.home2 {
+    background-color: lightgreen;
+    flex: 0 0 40%;
+}
+
+.home3 {
+    background-color: lavender;
+    flex: 0 0 30%;
+}

@@ -1,5 +1,11 @@
 # 화상회의 웹
 
+## Start server
+```bash
+npm run build
+node server.js
+```
+
 ## Project setup
 + `.env` file
 ```env
