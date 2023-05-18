@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { authService } from "../firebaseInstance";
+import { authService } from "../../firebaseInstance";
 
 function Profile({ userObj }) {
     const navigate = useNavigate();

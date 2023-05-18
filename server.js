@@ -4,6 +4,8 @@ const { Server } = require("socket.io");
 const path = require("path");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
+const roomModel = require("./src/models/roomModel");
+const { REPL_MODE_SLOPPY } = require("repl");
 
 const app = express();
 
@@ -53,8 +55,24 @@ ioServer.on("connection", (socket) => {
         });
     });
 
-    socket.on("signUp", (uid) => {
-        console.log("signIn: ", uid);
+    socket.on("createRoom", (uid, roomTitle) => {
+        roomModel.createRoom(uid, roomTitle, (err, results) => {
+            if (err) {
+                console.error("createRoom error: ", err);
+                return;
+            }
+            console.log("createRoom results: ", results);
+        });
+    });
+
+    socket.on("getRooms", (uid) => {
+        roomModel.getRoomByUid(uid, (err, results) => {
+            if (err) {
+                console.error("getRooms error: ", err);
+                return;
+            }
+        });
+        socket.emit("getRooms", result);
     });
 });
 

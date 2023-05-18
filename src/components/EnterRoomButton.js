@@ -1,4 +1,4 @@
-function RoomButton({ roomObj }) {
+function EnterRoomButton({ roomObj }) {
     return (
         <div>
             <button>{roomObj.room_title}</button>
@@ -6,4 +6,4 @@ function RoomButton({ roomObj }) {
     );
 }
 
-export default RoomButton;
+export default EnterRoomButton;

@@ -16,7 +16,12 @@ function AppRouter({ isLoggedIn, userObj, frontSocket }) {
                         <Route
                             exact
                             path="/"
-                            element={<Home userObj={userObj}></Home>}
+                            element={
+                                <Home
+                                    frontSocket={frontSocket}
+                                    userObj={userObj}
+                                ></Home>
+                            }
                         />
                     </>
                 ) : (

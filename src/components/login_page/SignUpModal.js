@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { authService } from "../firebaseInstance";
+import { authService } from "../../firebaseInstance";
 import styles from "./SignUpModal.module.css";
 import { useState } from "react";
 

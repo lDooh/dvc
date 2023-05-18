@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { authService, firebaseInstance } from "../firebaseInstance";
-import SignUpModal from "../components/SignUpModal";
+import SignUpModal from "../components/login_page/SignUpModal";
 
 function LoginPage({ frontSocket }) {
     const [email, setEmail] = useState("");
