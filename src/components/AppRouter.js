@@ -7,7 +7,7 @@ import {
 import LoginPage from "../routes/LoginPage";
 import Home from "../routes/Home";
 
-function AppRouter({ isLoggedIn, userObj, frontSocket }) {
+function AppRouter({ isLoggedIn, userObj }) {
     return (
         <Router>
             <Routes>
@@ -16,22 +16,11 @@ function AppRouter({ isLoggedIn, userObj, frontSocket }) {
                         <Route
                             exact
                             path="/"
-                            element={
-                                <Home
-                                    frontSocket={frontSocket}
-                                    userObj={userObj}
-                                ></Home>
-                            }
+                            element={<Home userObj={userObj}></Home>}
                         />
                     </>
                 ) : (
-                    <Route
-                        exact
-                        path="/"
-                        element={
-                            <LoginPage frontSocket={frontSocket}></LoginPage>
-                        }
-                    />
+                    <Route exact path="/" element={<LoginPage></LoginPage>} />
                 )}
                 <Route path="*" element={<Navigate replace to="/" />} />
             </Routes>

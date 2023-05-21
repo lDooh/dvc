@@ -1,14 +1,16 @@
 import { useNavigate } from "react-router";
 import { authService } from "../../firebaseInstance";
 import styles from "./SignUpModal.module.css";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { SocketContext } from "../../context/clientSocket";
 
-function SignInModal({ setSignUpOpen, frontSocket }) {
+function SignInModal({ setSignUpOpen }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [password2, setPassword2] = useState("");
     const [nickname, setNickname] = useState("");
     const navigate = useNavigate();
+    const frontSocket = useContext(SocketContext);
 
     const onChange = (event) => {
         const {

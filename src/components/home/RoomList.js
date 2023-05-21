@@ -1,10 +1,16 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import styles from "./RoomList.module.css";
 import CreateRoomModal from "./room_list/CreateRoomModal";
+import { SocketContext } from "../../context/clientSocket";
 
-function RoomList({ frontSocket, userObj }) {
+function RoomList({ userObj }) {
     const [roomList, setRoomList] = useState([]);
     const [createRoomOpen, setCreateRoomOpen] = useState(false);
+    const frontSocket = useContext(SocketContext);
+
+    useEffect(() => {
+        frontSocket.emit("getRooms", userObj.uid);
+    }, []);
 
     const onNewRoomClick = () => {
         console.log("Create new conference room.");
@@ -25,7 +31,6 @@ function RoomList({ frontSocket, userObj }) {
             {createRoomOpen && (
                 <CreateRoomModal
                     setCreateRoomOpen={setCreateRoomOpen}
-                    frontSocket={frontSocket}
                     uid={userObj.uid}
                 />
             )}

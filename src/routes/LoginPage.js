@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { authService, firebaseInstance } from "../firebaseInstance";
 import SignUpModal from "../components/login_page/SignUpModal";
+import { SocketContext } from "../context/clientSocket";
 
-function LoginPage({ frontSocket }) {
+function LoginPage() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [signUpOpen, setSignUpOpen] = useState(false);
+    const frontSocket = useContext(SocketContext);
 
     const onChange = (event) => {
         const {
@@ -80,12 +82,7 @@ function LoginPage({ frontSocket }) {
                 </button>
             </div>
             <button onClick={showSignUpModal}>회원가입</button>
-            {signUpOpen && (
-                <SignUpModal
-                    setSignUpOpen={setSignUpOpen}
-                    frontSocket={frontSocket}
-                />
-            )}
+            {signUpOpen && <SignUpModal setSignUpOpen={setSignUpOpen} />}
         </div>
     );
 }

@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import styles from "./CreateRoomModal.module.css";
+import { SocketContext } from "../../../context/clientSocket";
 
-function CreateRoomModal({ setCreateRoomOpen, frontSocket, uid }) {
+function CreateRoomModal({ setCreateRoomOpen, uid }) {
     const [roomName, setRoomName] = useState("");
+    const frontSocket = useContext(SocketContext);
 
     const closeCreateRoomModal = () => {
         setCreateRoomOpen(false);

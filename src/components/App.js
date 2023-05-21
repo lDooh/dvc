@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react";
 import { authService } from "../firebaseInstance";
 import AppRouter from "./AppRouter";
-import { io } from "socket.io-client";
+import { SocketContext, frontSocket } from "../context/clientSocket";
 
 function App() {
     const [init, setInit] = useState(false);
     const [isLoggedIn, setIsLoggedIn] = useState(authService.currentUser);
     const [userObj, setUsetObj] = useState(null);
-    const [frontSocket, setFrontSocket] = useState(null);
 
     useEffect(() => {
         authService.onAuthStateChanged((user) => {
@@ -22,44 +21,22 @@ function App() {
         });
     }, []);
 
-    useEffect(() => {
-        const newSocket = io();
-
-        const checkSocket = setInterval(() => {
-            if (newSocket) {
-                console.log("Socket connected!");
-                newSocket.on("nickname", async (nickname) => {
-                    await authService.currentUser.updateProfile({
-                        displayName: nickname,
-                    });
-                    window.location.reload();
-                });
-
-                setFrontSocket(newSocket);
-
-                clearInterval(checkSocket);
-            }
-        }, 100);
-
-        return () => {
-            console.log("Close socket.");
-            newSocket.disconnect();
-        };
-    }, []);
+    frontSocket.on("nickname", async (nickname) => {
+        await authService.currentUser.updateProfile({ displayName: nickname });
+        window.location.reload();
+    });
 
     return (
-        <>
-            <header>Header</header>
-            {frontSocket && init ? (
-                <AppRouter
-                    isLoggedIn={isLoggedIn}
-                    userObj={userObj}
-                    frontSocket={frontSocket}
-                />
-            ) : (
-                "로딩중"
-            )}
-        </>
+        <SocketContext.Provider value={frontSocket}>
+            <div>
+                <header>Header</header>
+                {init ? (
+                    <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} />
+                ) : (
+                    "로딩중"
+                )}
+            </div>
+        </SocketContext.Provider>
     );
 }
 

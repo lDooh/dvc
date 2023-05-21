@@ -10,17 +10,21 @@ const crypto = require("crypto");
 function createRoom(uid, roomTitle, callback) {
     const sql = "INSERT INTO room VALUES (?, ?, ?)";
     const pool = db.pool;
+    const roomId = crypto.randomUUID();
 
-    pool.query(
-        sql,
-        [crypto.randomUUID(), uid, roomTitle],
-        (err, results, fields) => {
-            if (err) {
-                return callback(err);
-            }
-            return callback(null, results);
+    pool.query(sql, [roomId, uid, roomTitle], (err, results, fields) => {
+        if (err) {
+            return callback(err);
         }
-    );
+
+        const _sql = "INSERT INTO participation VALUES(?, ?)";
+        pool.query(_sql, [roomId, uid], (_err, _results, _fields) => {
+            if (_err) {
+                return callback(_err);
+            }
+        });
+        return callback(null, results);
+    });
 }
 
 /**

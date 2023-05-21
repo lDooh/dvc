@@ -61,7 +61,7 @@ ioServer.on("connection", (socket) => {
                 console.error("createRoom error: ", err);
                 return;
             }
-            console.log("createRoom results: ", results);
+            // console.log("createRoom results: ", results);
         });
     });
 
@@ -71,8 +71,8 @@ ioServer.on("connection", (socket) => {
                 console.error("getRooms error: ", err);
                 return;
             }
+            socket.emit("getRooms", results);
         });
-        socket.emit("getRooms", result);
     });
 });
 
