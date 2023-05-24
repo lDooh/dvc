@@ -1,4 +1,4 @@
-import RoomHeader from "../components/RoomHeader";
+import RoomHeader from "../components/room/RoomHeader";
 
 function Room({ userObj }) {
     return (
