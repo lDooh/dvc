@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import LoginPage from "../routes/LoginPage";
 import Home from "../routes/Home";
+import Room from "../routes/Room";
 
 function AppRouter({ isLoggedIn, userObj }) {
     return (
@@ -16,7 +17,12 @@ function AppRouter({ isLoggedIn, userObj }) {
                         <Route
                             exact
                             path="/"
-                            element={<Home userObj={userObj}></Home>}
+                            element={<Home userObj={userObj} />}
+                        />
+                        <Route
+                            exact
+                            path="/room/:roomid"
+                            element={<Room userObj={userObj} />}
                         />
                     </>
                 ) : (
