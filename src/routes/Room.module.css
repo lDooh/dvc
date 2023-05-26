@@ -3,21 +3,21 @@
     flex-direction: row;
 }
 
-.home {
+.room {
     height: 100vh;
 }
 
-.home1 {
+.room1 {
     background-color: lavender;
     flex: 0 0 20%;
 }
 
-.home2 {
+.room2 {
     background-color: lightgreen;
     flex: 0 0 60%;
 }
 
-.home3 {
+.room3 {
     background-color: lavender;
     flex: 0 0 20%;
 }
