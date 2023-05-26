@@ -13,7 +13,7 @@ import RoomArchive from "../components/room/RoomArchive";
 function Room({ userObj }) {
     const [roomTitle, setRoomTitle] = useState("");
     const params = useParams();
-    const roomId = params.room_id;
+    const roomId = params.roomid;
     const frontSocket = useContext(SocketContext);
     const [currentMenu, setCurrentMenu] = useState("home");
     const [isHost, setIsHost] = useState(false);
