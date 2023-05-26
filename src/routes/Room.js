@@ -13,7 +13,7 @@ import RoomArchive from "../components/room/RoomArchive";
 function Room({ userObj }) {
     const [roomTitle, setRoomTitle] = useState("");
     const params = useParams();
-    const roomId = params.room_id;
+    const roomId = params.roomid;
     const frontSocket = useContext(SocketContext);
     const [currentMenu, setCurrentMenu] = useState("home");
     const [isHost, setIsHost] = useState(false);
@@ -31,15 +31,15 @@ function Room({ userObj }) {
         <div>
             <RoomHeader room_title={roomTitle} />
             <div className={styles.container}>
-                <div className={[styles.home, styles.home1].join(" ")}>
+                <div className={[styles.room, styles.room1].join(" ")}>
                     <RoomMenu setCurrentMenu={setCurrentMenu} />
                 </div>
-                <div className={[styles.home, styles.home2].join(" ")}>
+                <div className={[styles.room, styles.room2].join(" ")}>
                     {currentMenu === "home" && <RoomChat />}
                     {currentMenu === "storage" && <RoomStorage />}
                     {currentMenu === "archive" && <RoomArchive />}
                 </div>
-                <div className={[styles.home, styles.home3].join(" ")}>
+                <div className={[styles.room, styles.room3].join(" ")}>
                     <RoomParticipants />
                     {isHost && <StartConferenceButton />}
                 </div>

@@ -1,0 +1,28 @@
+.container {
+    display: flex;
+    flex-direction: row;
+}
+
+.videoRoom {
+    height: 100vh;
+}
+
+.video-room1-code-close {
+    background-color: beige;
+    flex: 0 0 70%;
+}
+
+.video-room1-code-open {
+    background-color: beige;
+    flex: 0 0 23%;
+}
+
+.video-room2 {
+    background-color: aquamarine;
+    flex: 0 0 47%;
+}
+
+.video-room3 {
+    background-color: lightgoldenrodyellow;
+    flex: 0 0 30%;
+}
