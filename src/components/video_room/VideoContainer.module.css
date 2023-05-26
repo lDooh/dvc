@@ -1,0 +1,19 @@
+.container-code-close {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    overflow: auto;
+    height: 65vh;
+    gap: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.container-code-open {
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    height: 65vh;
+    gap: 10px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
