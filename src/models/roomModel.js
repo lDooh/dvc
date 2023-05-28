@@ -44,11 +44,33 @@ function startConference(roomId, callback) {
     });
 }
 
+/**
+ * End real time video conference.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
 function endConference(roomId, callback) {
     const sql = "UPDATE room SET isMeeting = ? WHERE roomd_id = ?";
     const pool = db.pool;
 
     pool.query(sql, [false, roomId], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, results);
+    });
+}
+
+/**
+ * Return room title.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+function getRoomByRoomId(roomId, callback) {
+    const sql = "SELECT * FROM room WHERE room_id = ?";
+    const pool = db.pool;
+
+    pool.query(sql, [roomId], (err, results, fields) => {
         if (err) {
             return callback(err);
         }
@@ -77,5 +99,6 @@ function getRoomByUid(uid, callback) {
 module.exports = {
     createRoom,
     startConference,
+    getRoomByRoomId,
     getRoomByUid,
 };
