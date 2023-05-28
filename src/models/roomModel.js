@@ -8,7 +8,7 @@ const crypto = require("crypto");
  * @param {Function} callback
  */
 function createRoom(uid, roomTitle, callback) {
-    const sql = "INSERT INTO room VALUES (?, ?, ?)";
+    const sql = "INSERT INTO room VALUES (?, ?, ?, DEFAULT)";
     const pool = db.pool;
     const roomId = crypto.randomUUID();
 
@@ -23,6 +23,57 @@ function createRoom(uid, roomTitle, callback) {
                 return callback(_err);
             }
         });
+        return callback(null, results);
+    });
+}
+
+/**
+ * Start real time video conference.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+function startConference(roomId, callback) {
+    const sql = "UPDATE room SET isMeeting = ? WHERE room_id = ?";
+    const pool = db.pool;
+
+    pool.query(sql, [true, roomId], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, results);
+    });
+}
+
+/**
+ * End real time video conference.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+function endConference(roomId, callback) {
+    const sql = "UPDATE room SET isMeeting = ? WHERE room_id = ?";
+    const pool = db.pool;
+
+    pool.query(sql, [false, roomId], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, results);
+    });
+}
+
+/**
+ * Return room title.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+function getRoomByRoomId(roomId, callback) {
+    const sql = "SELECT * FROM room WHERE room_id = ?";
+    const pool = db.pool;
+
+    pool.query(sql, [roomId], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
         return callback(null, results);
     });
 }
@@ -47,5 +98,7 @@ function getRoomByUid(uid, callback) {
 
 module.exports = {
     createRoom,
+    startConference,
+    getRoomByRoomId,
     getRoomByUid,
 };

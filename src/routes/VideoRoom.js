@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import VideoRoomHeader from "../components/video_room/VideoRoomHeader";
 import styles from "./VideoRoom.module.css";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { SocketContext } from "../context/clientSocket";
 import VideoContainer from "../components/video_room/VideoContainer";
 import ControlBar from "../components/video_room/ControlBar";
@@ -15,51 +15,79 @@ function VideoRoom({ userObj }) {
     const params = useParams();
     const roomId = params.roomid;
     const frontSocket = useContext(SocketContext);
+    const [init, setInit] = useState(false);
+    const navigate = useNavigate();
 
     useEffect(() => {
-        frontSocket.on("roomTitle", (roomTitle, isHost) => {
+        /* frontSocket.on("checkConference", (inProgress) => {
+            if (!inProgress) {
+                alert("회의가 진행중이 아닙니다.");
+                navigate(`/room/${roomId}`, {
+                    replace: true,
+                });
+            }
+        }); */
+
+        frontSocket.on("roomInfo", (roomTitle, isHost, inProgress) => {
+            if (!inProgress) {
+                alert("회의가 진행중이 아닙니다.");
+                navigate(`/room/${roomId}`, {
+                    replace: true,
+                });
+            }
+
             setRoomTitle(roomTitle);
             setIsHost(isHost);
+            setInit(true);
         });
 
-        frontSocket.emit("roomTitle", roomId, userObj.uid);
+        frontSocket.emit("roomInfo", roomId, userObj.uid);
     }, []);
 
     return (
         <div>
-            <VideoRoomHeader
-                roomTitle={roomTitle}
-                codeOpen={codeOpen}
-                setCodeOpen={setCodeOpen}
-            />
-            <div className={styles.container}>
-                <div
-                    className={[
-                        styles.videoRoom,
-                        codeOpen
-                            ? styles["video-room1-code-open"]
-                            : styles["video-room1-code-close"],
-                    ].join(" ")}
-                >
-                    <VideoContainer codeOpen={codeOpen} />
-                    {!codeOpen && (
-                        <ControlBar isHost={isHost} setCodeOpen={setCodeOpen} />
-                    )}
-                </div>
-                {codeOpen && (
-                    <div className={styles["video-room2"]}>
-                        <CodeEditor />
+            {init ? (
+                <div>
+                    <VideoRoomHeader
+                        roomTitle={roomTitle}
+                        codeOpen={codeOpen}
+                        setCodeOpen={setCodeOpen}
+                    />
+                    <div className={styles.container}>
+                        <div
+                            className={[
+                                styles.videoRoom,
+                                codeOpen
+                                    ? styles["video-room1-code-open"]
+                                    : styles["video-room1-code-close"],
+                            ].join(" ")}
+                        >
+                            <VideoContainer codeOpen={codeOpen} />
+                            {!codeOpen && (
+                                <ControlBar
+                                    isHost={isHost}
+                                    setCodeOpen={setCodeOpen}
+                                />
+                            )}
+                        </div>
+                        {codeOpen && (
+                            <div className={styles["video-room2"]}>
+                                <CodeEditor />
+                            </div>
+                        )}
+                        <div
+                            className={[
+                                styles["videoRoom"],
+                                styles["video-room3"],
+                            ].join(" ")}
+                        >
+                            <RealTimeChat />
+                        </div>
                     </div>
-                )}
-                <div
-                    className={[
-                        styles["videoRoom"],
-                        styles["video-room3"],
-                    ].join(" ")}
-                >
-                    <RealTimeChat />
                 </div>
-            </div>
+            ) : (
+                "실시간 회의 입장 중..."
+            )}
         </div>
     );
 }

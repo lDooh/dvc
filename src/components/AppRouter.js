@@ -27,7 +27,7 @@ function AppRouter({ isLoggedIn, userObj }) {
                         />
                         <Route
                             exact
-                            path="/room/video/:roomid"
+                            path="/room/meeting/:roomid"
                             element={<VideoRoom userObj={userObj} />}
                         />
                     </>

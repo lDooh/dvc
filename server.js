@@ -61,7 +61,6 @@ ioServer.on("connection", (socket) => {
                 console.error("createRoom error: ", err);
                 return;
             }
-            // console.log("createRoom results: ", results);
         });
     });
 
@@ -72,6 +71,52 @@ ioServer.on("connection", (socket) => {
                 return;
             }
             socket.emit("getRooms", results);
+        });
+    });
+
+    socket.on("roomTitle", (roomId, uid) => {
+        roomModel.getRoomByRoomId(roomId, (err, results) => {
+            if (err) {
+                console.error("getRoomByRoomId error: ", err);
+                return;
+            }
+
+            socket.emit(
+                "roomTitle",
+                results[0].room_title,
+                uid == results[0].uid
+            );
+        });
+    });
+
+    socket.on("roomInfo", (roomId, uid) => {
+        roomModel.getRoomByRoomId(roomId, (err, results) => {
+            if (err) {
+                console.error("getRoomByRoomId error: ", err);
+                return;
+            }
+
+            socket.emit(
+                "roomInfo",
+                results[0].room_title,
+                uid == results[0].uid,
+                results[0].isMeeting
+            );
+        });
+    });
+
+    socket.on("startConference", (roomId) => {
+        let isStart = false;
+
+        roomModel.startConference(roomId, (err, results) => {
+            if (err) {
+                console.error("startConference error: ", err);
+                isStart = false;
+            } else {
+                isStart = true;
+            }
+
+            socket.emit("startConference", isStart);
         });
     });
 });

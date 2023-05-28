@@ -17,11 +17,13 @@ function Room({ userObj }) {
     const frontSocket = useContext(SocketContext);
     const [currentMenu, setCurrentMenu] = useState("home");
     const [isHost, setIsHost] = useState(false);
+    const [init, setInit] = useState(false);
 
     useEffect(() => {
         frontSocket.on("roomTitle", (roomTitle, isHost) => {
             setRoomTitle(roomTitle);
             setIsHost(isHost);
+            setInit(true);
         });
 
         frontSocket.emit("roomTitle", roomId, userObj.uid);
@@ -29,21 +31,32 @@ function Room({ userObj }) {
 
     return (
         <div>
-            <RoomHeader room_title={roomTitle} />
-            <div className={styles.container}>
-                <div className={[styles.room, styles.room1].join(" ")}>
-                    <RoomMenu setCurrentMenu={setCurrentMenu} />
+            {init ? (
+                <div>
+                    <RoomHeader room_title={roomTitle} />
+                    <div className={styles.container}>
+                        <div className={[styles.room, styles.room1].join(" ")}>
+                            <RoomMenu setCurrentMenu={setCurrentMenu} />
+                        </div>
+                        <div className={[styles.room, styles.room2].join(" ")}>
+                            {currentMenu === "home" && <RoomChat />}
+                            {currentMenu === "storage" && <RoomStorage />}
+                            {currentMenu === "archive" && <RoomArchive />}
+                        </div>
+                        <div className={[styles.room, styles.room3].join(" ")}>
+                            <RoomParticipants />
+                            {
+                                <StartConferenceButton
+                                    isHost={isHost}
+                                    roomId={roomId}
+                                />
+                            }
+                        </div>
+                    </div>
                 </div>
-                <div className={[styles.room, styles.room2].join(" ")}>
-                    {currentMenu === "home" && <RoomChat />}
-                    {currentMenu === "storage" && <RoomStorage />}
-                    {currentMenu === "archive" && <RoomArchive />}
-                </div>
-                <div className={[styles.room, styles.room3].join(" ")}>
-                    <RoomParticipants />
-                    {isHost && <StartConferenceButton />}
-                </div>
-            </div>
+            ) : (
+                "회의실 입장중..."
+            )}
         </div>
     );
 }

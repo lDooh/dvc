@@ -5,8 +5,6 @@ function RoomButton({ roomObj }) {
     const navigate = useNavigate();
 
     const onClick = () => {
-        console.log(`회의실 ${roomObj.room_title} 로 이동`);
-
         navigate(`/room/${roomObj.room_id}`, {
             replace: false,
         });
