@@ -10,9 +10,10 @@ function StartConferenceButton({ isHost, roomId }) {
 
     useEffect(() => {
         frontSocket.on("startConference", (isStart) => {
+            setGetStartBoolean((prev) => true);
+
             if (isStart) {
-                setStartSuccess(true);
-                setGetStartBoolean(true);
+                setStartSuccess((prev) => true);
             }
         });
     }, []);
@@ -20,26 +21,25 @@ function StartConferenceButton({ isHost, roomId }) {
     const onClick = () => {
         if (isHost) {
             frontSocket.emit("startConference", roomId);
-
-            const checkGetStartBoolean = setInterval(() => {
-                if (getStartBoolean) {
-                    clearInterval(checkGetStartBoolean);
-
-                    if (startSuccess) {
-                        navigate(`/room/meeting/${roomId}`, {
-                            replace: false,
-                        });
-                    } else {
-                        alert("회의를 시작하지 못하였습니다.");
-                    }
-                }
-            }, 100);
         } else {
             navigate(`/room/meeting/${roomId}`, {
                 replace: false,
             });
         }
     };
+
+    useEffect(() => {
+        if (getStartBoolean) {
+            if (startSuccess) {
+                navigate(`/room/meeting/${roomId}`, {
+                    replace: false,
+                });
+            } else {
+                setGetStartBoolean(false);
+                alert("회의를 시작하지 못하였습니다.");
+            }
+        }
+    }, [getStartBoolean]);
 
     return (
         <div>

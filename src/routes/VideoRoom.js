@@ -49,6 +49,7 @@ function VideoRoom({ userObj }) {
             {init ? (
                 <div>
                     <VideoRoomHeader
+                        roomId={roomId}
                         roomTitle={roomTitle}
                         codeOpen={codeOpen}
                         setCodeOpen={setCodeOpen}
