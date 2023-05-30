@@ -33,7 +33,7 @@ function createRoom(uid, roomTitle, callback) {
  * @param {Function} callback
  */
 function startConference(roomId, callback) {
-    const sql = "UPDATE room SET isMeeting = ? WHERE room_id = ?";
+    const sql = "UPDATE room SET inProgress = ? WHERE room_id = ?";
     const pool = db.pool;
 
     pool.query(sql, [true, roomId], (err, results, fields) => {
@@ -50,7 +50,7 @@ function startConference(roomId, callback) {
  * @param {Function} callback
  */
 function endConference(roomId, callback) {
-    const sql = "UPDATE room SET isMeeting = ? WHERE room_id = ?";
+    const sql = "UPDATE room SET inProgress = ? WHERE room_id = ?";
     const pool = db.pool;
 
     pool.query(sql, [false, roomId], (err, results, fields) => {

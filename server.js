@@ -100,7 +100,7 @@ ioServer.on("connection", (socket) => {
                 "roomInfo",
                 results[0].room_title,
                 uid == results[0].uid,
-                results[0].isMeeting
+                results[0].inProgress
             );
         });
     });
