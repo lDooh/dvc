@@ -63,7 +63,11 @@ function VideoRoom({ userObj }) {
                                     : styles["video-room1-code-close"],
                             ].join(" ")}
                         >
-                            <VideoContainer codeOpen={codeOpen} />
+                            <VideoContainer
+                                uid={userObj.uid}
+                                roomId={roomId}
+                                codeOpen={codeOpen}
+                            />
                             {!codeOpen && (
                                 <ControlBar
                                     isHost={isHost}
