@@ -1,12 +1,11 @@
 const express = require("express");
 const http = require("http");
-const { Server } = require("socket.io");
 const path = require("path");
+const { Server } = require("socket.io");
+const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
-const { REPL_MODE_SLOPPY } = require("repl");
-
 const app = express();
 
 app.use(express.static(path.join(__dirname, "/build")));
@@ -19,6 +18,11 @@ app.get("*", (res, req) => {
 
 const httpServer = http.createServer(app);
 const ioServer = new Server(httpServer);
+
+const openViduUrl = "http://localhost:4443";
+const openViduSecret = "MY_SECRET";
+const openvidu = new OpenVidu(openViduUrl, openViduSecret);
+const sessions = {};
 
 ioServer.on("connection", (socket) => {
     console.log("연결");
@@ -118,6 +122,31 @@ ioServer.on("connection", (socket) => {
 
             socket.emit("startConference", isStart);
         });
+    });
+
+    socket.on("joinConference", async (uid, roomId) => {
+        // Create session if not exist
+        if (!sessions[roomId]) {
+            ovProperties = {};
+
+            try {
+                const createdSession = await openvidu.createSession(
+                    ovProperties
+                );
+                sessions[roomId] = createdSession;
+            } catch (err) {
+                console.error("세션 생성 실패: ", err);
+            }
+        }
+
+        const session = sessions[roomId];
+        const connectionProperties = {
+            role: "PUBLISHER",
+            data: JSON.stringify({ socketId: socket.id, uid: uid }),
+        };
+        const connection = await session.createConnection(connectionProperties);
+        const token = connection.token;
+        socket.emit("token", token, session.sessionId);
     });
 });
 

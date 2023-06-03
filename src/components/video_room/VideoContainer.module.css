@@ -17,3 +17,10 @@
     padding-left: 10px;
     padding-right: 10px;
 }
+
+.videoWidget {
+    aspect-ratio: 1 / 1;
+    height: 300px;
+    border: 2px solid cornflowerblue;
+    margin: 5px;
+}
