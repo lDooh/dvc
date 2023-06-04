@@ -19,15 +19,6 @@ function VideoRoom({ userObj }) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        /* frontSocket.on("checkConference", (inProgress) => {
-            if (!inProgress) {
-                alert("회의가 진행중이 아닙니다.");
-                navigate(`/room/${roomId}`, {
-                    replace: true,
-                });
-            }
-        }); */
-
         frontSocket.on("roomInfo", (roomTitle, isHost, inProgress) => {
             if (!inProgress) {
                 alert("회의가 진행중이 아닙니다.");
@@ -77,7 +68,7 @@ function VideoRoom({ userObj }) {
                         </div>
                         {codeOpen && (
                             <div className={styles["video-room2"]}>
-                                <CodeEditor />
+                                <CodeEditor roomId={roomId} />
                             </div>
                         )}
                         <div
