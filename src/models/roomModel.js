@@ -28,6 +28,23 @@ function createRoom(uid, roomTitle, callback) {
 }
 
 /**
+ * Return whether conference is in progress.
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+/* function isInProgress(roomId, callback) {
+    const sql = "SELECT inProgress FROM room WHERE room_id = ?";
+    const pool = db.pool;
+
+    pool.query(sql, [roomId], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, results);
+    });
+} */
+
+/**
  * Start real time video conference.
  * @param {String} roomId
  * @param {Function} callback
@@ -49,11 +66,11 @@ function startConference(roomId, callback) {
  * @param {String} roomId
  * @param {Function} callback
  */
-function endConference(roomId, callback) {
-    const sql = "UPDATE room SET inProgress = ? WHERE room_id = ?";
+function endConferenceByUid(uid, callback) {
+    const sql = "UPDATE room SET inProgress = ? WHERE uid = ?";
     const pool = db.pool;
 
-    pool.query(sql, [false, roomId], (err, results, fields) => {
+    pool.query(sql, [false, uid], (err, results, fields) => {
         if (err) {
             return callback(err);
         }
@@ -98,7 +115,9 @@ function getRoomByUid(uid, callback) {
 
 module.exports = {
     createRoom,
+    // isInProgress,
     startConference,
+    endConferenceByUid,
     getRoomByRoomId,
     getRoomByUid,
 };

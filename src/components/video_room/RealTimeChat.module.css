@@ -1,0 +1,29 @@
+.chatting-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.chat-record {
+    flex: 7;
+    background-color: mediumturquoise;
+}
+
+.chat-input {
+    display: flex;
+    align-items: center;
+    flex: 3;
+    background-color: darkgrey;
+}
+
+.chat-textarea {
+    width: 330px;
+    height: 90px;
+    margin: 10px 5px;
+}
+
+.chat-button {
+    width: 90px;
+    height: 90px;
+    margin: 10px 5px;
+}

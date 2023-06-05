@@ -8,6 +8,11 @@ const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
 const app = express();
 
+/**
+ * before server start
+ * docker run -p 4443:4443 --rm -e openvidu.secret=MY_SECRET -e openvidu.publicurl=https://localhost:4443 openvidu/openvidu-server-kms
+ */
+
 app.use(express.static(path.join(__dirname, "/build")));
 app.get("/", (res, req) => {
     req.sendFile(path.join(__dirname, "/build/index.html"));
@@ -23,6 +28,41 @@ const openViduUrl = "http://localhost:4443";
 const openViduSecret = "MY_SECRET";
 const openvidu = new OpenVidu(openViduUrl, openViduSecret);
 const sessions = {};
+
+function getChattingDateString(before) {
+    const year = before.getFullYear();
+    const month = String(before.getMonth() + 1).padStart(2, "0");
+    const day = String(before.getDate()).padStart(2, "0");
+    let hour = before.getHours();
+    const minute = String(before.getMinutes()).padStart(2, "0");
+
+    let period = "오전";
+    if (hour >= 12) {
+        period = "오후";
+        hour -= 12;
+    }
+
+    const afterDate = `${year}/${month}/${day} ${period} ${hour}:${minute}`;
+    return afterDate;
+}
+
+function getChattingDateStringByDate() {
+    const currentDate = new Date();
+    const year = currentDate.getFullYear();
+    const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const day = String(currentDate.getDate()).padStart(2, "0");
+    let hour = currentDate.getHours();
+    const minute = String(currentDate.getMinutes()).padStart(2, "0");
+
+    let period = "오전";
+    if (hour >= 12) {
+        period = "오후";
+        hour -= 12;
+    }
+
+    const formattedDate = `${year}/${month}/${day} ${period} ${hour}:${minute}`;
+    return formattedDate;
+}
 
 ioServer.on("connection", (socket) => {
     console.log("연결");
@@ -117,6 +157,7 @@ ioServer.on("connection", (socket) => {
                 console.error("startConference error: ", err);
                 isStart = false;
             } else {
+                socket.join(roomId);
                 isStart = true;
             }
 
@@ -125,6 +166,8 @@ ioServer.on("connection", (socket) => {
     });
 
     socket.on("joinConference", async (uid, roomId) => {
+        socket.join(roomId);
+
         // Create session if not exist
         if (!sessions[roomId]) {
             ovProperties = {};
@@ -148,6 +191,34 @@ ioServer.on("connection", (socket) => {
         const token = connection.token;
         socket.emit("token", token, session.sessionId);
     });
+
+    socket.on("sendRealtimeChat", (uid, roomId, msg) => {
+        userModel.findUserByUid(uid, (err, results) => {
+            if (err) {
+                console.error("findUserByUid error: ", err);
+            }
+
+            socket
+                .to(roomId)
+                .emit(
+                    "receiveRealtimeChat",
+                    uid,
+                    results[0].nickname,
+                    msg,
+                    getChattingDateStringByDate()
+                );
+        });
+    });
+
+    /* socket.on("disconnecting", () => {
+        // 연결이 끊긴 소켓이 회의의 호스트라면 회의 종료
+        // TODO: socket["uid"] 저장 필요
+        roomModel.endConferenceByUid(uid, (err, results) => {
+            if (err) {
+                console.error("endConferenceByUid error: ", err);
+            }
+        });
+    }); */
 });
 
 const serverUrl = "http://localhost";
