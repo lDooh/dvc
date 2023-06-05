@@ -1,0 +1,28 @@
+.myself {
+    text-align: right;
+}
+
+.not-myself {
+    text-align: left;
+}
+
+.chat-common {
+    overflow-wrap: anywhere;
+    min-height: 50px;
+    padding: 5px;
+}
+
+.chat-room {
+    width: 97%;
+    border: 2px solid greenyellow;
+}
+
+.chat-conference {
+    width: 97%;
+    border: 2px solid greenyellow;
+}
+
+.nickname-span {
+    margin-right: 7px;
+    font-weight: bold;
+}

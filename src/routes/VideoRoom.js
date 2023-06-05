@@ -77,7 +77,11 @@ function VideoRoom({ userObj }) {
                                 styles["video-room3"],
                             ].join(" ")}
                         >
-                            <RealTimeChat />
+                            <RealTimeChat
+                                uid={userObj.uid}
+                                nickname={userObj.displayName}
+                                roomId={roomId}
+                            />
                         </div>
                     </div>
                 </div>
