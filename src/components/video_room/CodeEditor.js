@@ -14,7 +14,11 @@ function CodeEditor({ roomId }) {
             mode: "javascript",
             theme: "default",
             lineNumbers: true,
+            styleActiveLine: true, // CodeMirror 스타일을 활성화한 경우
+            styleActiveLineBackground: "yellow", // 활성화된 줄의 배경색 설정
         });
+
+        codeMirrorRef.current.setSize(null, "100vh");
 
         codeMirrorRef.current.on("change", (instance) => {
             const value = instance.getValue();
