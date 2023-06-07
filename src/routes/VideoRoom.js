@@ -16,6 +16,7 @@ function VideoRoom({ userObj }) {
     const roomId = params.roomid;
     const frontSocket = useContext(SocketContext);
     const [init, setInit] = useState(false);
+    const [screenShare, setScreenShare] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -58,11 +59,13 @@ function VideoRoom({ userObj }) {
                                 uid={userObj.uid}
                                 roomId={roomId}
                                 codeOpen={codeOpen}
+                                screenShare={screenShare}
                             />
                             {!codeOpen && (
                                 <ControlBar
                                     isHost={isHost}
                                     setCodeOpen={setCodeOpen}
+                                    setScreenShare={setScreenShare}
                                 />
                             )}
                         </div>

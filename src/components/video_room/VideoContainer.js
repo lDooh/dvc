@@ -4,25 +4,29 @@ import { SocketContext } from "../../context/clientSocket";
 import { OpenVidu } from "openvidu-browser";
 import Video from "./Video";
 
-function VideoContainer({ uid, roomId, codeOpen }) {
+function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
     const [streams, setStreams] = useState([]);
-    const [OV, setOV] = useState(null);
-    const [session, setSession] = useState(null);
-    const [publisher, setPublisher] = useState(null);
     const frontSocket = useContext(SocketContext);
     const viderRef = useRef(null);
+    const camPublisher = useRef(null);
+    const screenPublisher = useRef(null);
+    const session = useRef(null);
+    const OV = new OpenVidu();
+
+    const handleStreamRemoved = (streamId) => {
+        setStreams((prevStreams) =>
+            prevStreams.filter((stream) => stream.streamId !== streamId)
+        );
+    };
 
     useEffect(() => {
-        let OV = new OpenVidu();
-        setOV(OV);
-
         frontSocket.on("token", async (token, sessionId) => {
-            let newSession = OV.initSession();
+            session.current = OV.initSession();
 
-            newSession.on("streamCreated", async (event) => {
+            session.current.on("streamCreated", async (event) => {
                 console.log("streamCreated 이벤트");
                 const stream = event.stream;
-                const subscriber = newSession.subscribe(stream);
+                const subscriber = session.current.subscribe(stream);
 
                 const waitForMediaStream = setInterval(() => {
                     if (subscriber.stream.mediaStream) {
@@ -32,11 +36,16 @@ function VideoContainer({ uid, roomId, codeOpen }) {
                 }, 100);
             });
 
-            newSession.on("exception", (exception) => {
+            session.current.on("exception", (exception) => {
                 console.warn("OpenVidu session exception: ", exception);
             });
 
-            await newSession
+            session.current.on("streamDestroyed", (event) => {
+                const stream = event.stream;
+                handleStreamRemoved(stream.streamId);
+            });
+
+            await session.current
                 .connect(token)
                 .then(() => {
                     console.log("Session connection complete.");
@@ -45,7 +54,7 @@ function VideoContainer({ uid, roomId, codeOpen }) {
                     console.error("Could not connect session: ", err);
                 });
 
-            let publisher = await OV.initPublisherAsync(undefined, {
+            camPublisher.current = await OV.initPublisherAsync(undefined, {
                 audioSource: undefined, // The source of audio. If undefined default microphone
                 videoSource: undefined, // The source of video. If undefined default webcam
                 publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
@@ -55,14 +64,45 @@ function VideoContainer({ uid, roomId, codeOpen }) {
                 insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
                 mirror: false, // Whether to mirror your local video or not
             });
-            viderRef.current.srcObject = publisher.stream.mediaStream;
-            setPublisher(publisher);
-            newSession.publish(publisher);
-            setSession(newSession);
+
+            viderRef.current.srcObject =
+                camPublisher.current.stream.mediaStream;
+            session.current.publish(camPublisher.current);
         });
 
         frontSocket.emit("joinConference", uid, roomId);
     }, []);
+
+    useEffect(() => {
+        if (!camPublisher.current) {
+            return;
+        }
+
+        if (screenShare) {
+            console.log("화면 공유로 전환");
+            if (!screenPublisher.current) {
+                (async () => {
+                    screenPublisher.current = await OV.initPublisherAsync(
+                        undefined,
+                        {
+                            videoSource: "screen",
+                        }
+                    );
+
+                    screenPublisher.current.once("accessAllowed", (event) => {
+                        session.current.unpublish(camPublisher.current);
+                        viderRef.current.srcObject =
+                            screenPublisher.current.stream.mediaStream;
+                        session.current.publish(screenPublisher.current);
+                    });
+                })();
+            }
+        } else {
+            console.log("캠으로 전환");
+            session.current.unpublish(screenPublisher.current);
+            session.current.publish(camPublisher.current);
+        }
+    }, [screenShare]);
 
     return (
         <div
