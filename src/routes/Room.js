@@ -40,7 +40,12 @@ function Room({ userObj }) {
                         </div>
                         <div className={[styles.room, styles.room2].join(" ")}>
                             {currentMenu === "home" && <RoomChat />}
-                            {currentMenu === "storage" && <RoomStorage />}
+                            {currentMenu === "storage" && (
+                                <RoomStorage
+                                    roomId={roomId}
+                                    userObj={userObj}
+                                />
+                            )}
                             {currentMenu === "archive" && <RoomArchive />}
                         </div>
                         <div className={[styles.room, styles.room3].join(" ")}>
