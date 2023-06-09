@@ -1,9 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+
 .container {
     width: 100%;
 }
 
 .item {
     text-align: center;
+    padding: 15px 3px;
+    font-size: large;
+    font-family: "Nanum Gothic Coding", monospace;
+}
+
+.container th {
+    border-bottom: 1px solid black;
 }
 
 .file-name {
@@ -19,7 +28,7 @@
 }
 
 .foot {
-    text-align: right;
+    text-align: center;
 }
 
 .hidden {

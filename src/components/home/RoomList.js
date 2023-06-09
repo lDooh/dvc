@@ -23,7 +23,12 @@ function RoomList({ userObj }) {
 
     return (
         <div className={styles.container}>
-            <button onClick={showCreateRoomModal}>새 회의 만들기</button>
+            <button
+                className={styles["newButton"]}
+                onClick={showCreateRoomModal}
+            >
+                새 회의 만들기
+            </button>
             {createRoomOpen && (
                 <CreateRoomModal
                     setCreateRoomOpen={setCreateRoomOpen}

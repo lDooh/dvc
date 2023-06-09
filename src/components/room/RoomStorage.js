@@ -135,16 +135,18 @@ function RoomStorage({ roomId, userObj }) {
                             </td>
                         </tr>
                     ))}
+                    <tr>
+                        <td colSpan={3} className={styles["foot"]}>
+                            <input
+                                type="file"
+                                id="file-input"
+                                onChange={onFileChange}
+                                className={styles["hidden"]}
+                            />
+                            <button onClick={onClick}>파일 업로드</button>
+                        </td>
+                    </tr>
                 </tbody>
-                <tfoot className={styles["foot"]} colSpan="3">
-                    <input
-                        type="file"
-                        id="file-input"
-                        onChange={onFileChange}
-                        className={styles["hidden"]}
-                    />
-                    <button onClick={onClick}>파일 업로드</button>
-                </tfoot>
             </table>
         </div>
     );

@@ -1,5 +1,7 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+
 .container {
-    /* justify-content: center; */
+    text-align: center;
 }
 
 .buttonContainer {
@@ -10,4 +12,15 @@
     gap: 10px;
     padding-left: 10px;
     padding-right: 10px;
+    font-family: "Nanum Gothic Coding", monospace;
+}
+
+.newButton {
+    margin-top: 20px;
+    margin-bottom: 30px;
+    font-size: x-large;
+    padding: 15px;
+    font-family: "Nanum Gothic Coding", monospace;
+    font-weight: bold;
+    border-radius: 10px;
 }

@@ -29,7 +29,7 @@ function App() {
     return (
         <SocketContext.Provider value={frontSocket}>
             <div>
-                <header>Header</header>
+                {/* <header>Header</header> */}
                 {init ? (
                     <AppRouter isLoggedIn={isLoggedIn} userObj={userObj} />
                 ) : (

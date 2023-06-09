@@ -1,0 +1,18 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+
+.container {
+    text-align: center;
+}
+
+.user-name {
+    margin-top: 50px;
+    font-family: "Nanum Gothic Coding", monospace;
+    font-size: x-large;
+}
+
+.logout {
+    margin-top: 70px;
+    padding: 15px;
+    font-family: "Nanum Gothic Coding", monospace;
+    font-size: large;
+}

@@ -8,21 +8,20 @@
 }
 
 .video-room1-code-close {
-    background-color: beige;
+    background-color: whitesmoke;
     flex: 0 0 70%;
 }
 
 .video-room1-code-open {
-    background-color: beige;
+    background-color: whitesmoke;
     flex: 0 0 23%;
 }
 
 .video-room2 {
-    background-color: aquamarine;
+    background-color: #ebebeb;
     flex: 0 0 47%;
 }
 
 .video-room3 {
-    background-color: lightgoldenrodyellow;
     flex: 0 0 30%;
 }

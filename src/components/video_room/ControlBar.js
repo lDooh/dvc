@@ -1,3 +1,5 @@
+import styles from "./ControlBar.module.css";
+
 function ControlBar({ isHost, setCodeOpen, setScreenShare }) {
     const onClick = (event) => {
         const {
@@ -16,7 +18,7 @@ function ControlBar({ isHost, setCodeOpen, setScreenShare }) {
     };
 
     return (
-        <div>
+        <div className={styles["container"]}>
             <button onClick={onClick} value="recording">
                 화면 녹화
             </button>

@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "../../context/clientSocket";
 import { useNavigate } from "react-router-dom";
+import styles from "./StartConferenceButton.module.css";
 
 function StartConferenceButton({ isHost, roomId }) {
     const frontSocket = useContext(SocketContext);
@@ -42,8 +43,8 @@ function StartConferenceButton({ isHost, roomId }) {
     }, [getStartBoolean]);
 
     return (
-        <div>
-            <button onClick={onClick}>
+        <div className={styles["container"]}>
+            <button className={styles["btn"]} onClick={onClick}>
                 {isHost ? "회의 시작" : "회의 참가"}
             </button>
         </div>

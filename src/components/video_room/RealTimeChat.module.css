@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+
 .chatting-container {
     display: flex;
     flex-direction: column;
@@ -6,23 +8,23 @@
 
 .chat-record {
     flex: 7;
-    background-color: mediumturquoise;
+    background-color: #ebebeb;
 }
 
 .chat-input {
     display: flex;
     align-items: center;
     flex: 3;
-    background-color: darkgrey;
+    background-color: #d2c9c9;
 }
 
-.chat-textarea {
+.chat-input textarea {
     width: 330px;
     height: 90px;
     margin: 10px 5px;
 }
 
-.chat-button {
+.chat-input button {
     width: 90px;
     height: 90px;
     margin: 10px 5px;

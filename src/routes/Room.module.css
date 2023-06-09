@@ -8,16 +8,16 @@
 }
 
 .room1 {
-    background-color: lavender;
+    background-color: #ebebeb;
     flex: 0 0 25%;
 }
 
 .room2 {
-    background-color: lightgreen;
+    background-color: whitesmoke;
     flex: 0 0 50%;
 }
 
 .room3 {
-    background-color: lavender;
+    background-color: #ebebeb;
     flex: 0 0 25%;
 }

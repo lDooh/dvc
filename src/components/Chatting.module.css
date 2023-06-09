@@ -1,3 +1,9 @@
+@import url("https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap");
+
+.container {
+    margin: 10px 0px;
+}
+
 .myself {
     text-align: right;
 }
@@ -23,6 +29,10 @@
 }
 
 .nickname-span {
-    margin-right: 7px;
+    margin-right: 20px;
     font-weight: bold;
+}
+
+.chat {
+    font-family: "Nanum Gothic Coding", monospace;
 }

@@ -36,7 +36,10 @@ function Room({ userObj }) {
                     <RoomHeader room_title={roomTitle} />
                     <div className={styles.container}>
                         <div className={[styles.room, styles.room1].join(" ")}>
-                            <RoomMenu setCurrentMenu={setCurrentMenu} />
+                            <RoomMenu
+                                currentMenu={currentMenu}
+                                setCurrentMenu={setCurrentMenu}
+                            />
                         </div>
                         <div className={[styles.room, styles.room2].join(" ")}>
                             {currentMenu === "home" && <RoomChat />}

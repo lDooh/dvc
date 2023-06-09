@@ -8,16 +8,16 @@
 }
 
 .home1 {
-    background-color: lavender;
+    background-color: #ebebeb;
     flex: 0 0 30%;
 }
 
 .home2 {
-    background-color: lightgreen;
+    background-color: whitesmoke;
     flex: 0 0 40%;
 }
 
 .home3 {
-    background-color: lavender;
+    background-color: #ebebeb;
     flex: 0 0 30%;
 }

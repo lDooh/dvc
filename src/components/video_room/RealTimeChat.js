@@ -78,11 +78,11 @@ function RealTimeChat({ uid, nickname, roomId }) {
             </div>
             <div className={styles["chat-input"]}>
                 <textarea
-                    className={styles["chat-textarea"]}
+                    className={styles[""]}
                     value={msg}
                     onChange={onChange}
                 />
-                <button className={styles["chat-button"]} onClick={onClick}>
+                <button className={styles[""]} onClick={onClick}>
                     전송
                 </button>
             </div>
