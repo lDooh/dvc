@@ -94,6 +94,28 @@ function RoomStorage({ roomId, userObj }) {
         document.getElementById("file-input").click();
     };
 
+    const onFileClick = async (filename) => {
+        try {
+            const fileRef = firebaseStorage.ref(`${roomId}/${filename}`);
+            const url = await fileRef.getDownloadURL();
+            const response = await fetch(url);
+            const blob = await response.blob();
+
+            // Create a virtual link for saving file.
+            const downloadLink = document.createElement("a");
+            downloadLink.href = URL.createObjectURL(blob);
+            downloadLink.download = filename;
+
+            // Click the virtual link.
+            downloadLink.click();
+
+            // Remove virtual link.
+            URL.revokeObjectURL(downloadLink.href);
+        } catch (err) {
+            console.error("File download error: ", err);
+        }
+    };
+
     return (
         <div className={styles["container"]}>
             <table className={styles["container"]}>
@@ -124,7 +146,10 @@ function RoomStorage({ roomId, userObj }) {
                 <tbody>
                     {fileList.map((fileObj, index) => (
                         <tr key={index}>
-                            <td className={styles["item"]}>
+                            <td
+                                onClick={() => onFileClick(fileObj.filename)}
+                                className={styles["item"]}
+                            >
                                 {fileObj.filename}
                             </td>
                             <td className={styles["item"]}>
