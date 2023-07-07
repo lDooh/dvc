@@ -34,14 +34,22 @@ function Room({ userObj }) {
             {init ? (
                 <div>
                     <RoomHeader room_title={roomTitle} />
-                    <div className={styles.container}>
-                        <div className={[styles.room, styles.room1].join(" ")}>
+                    <div className={styles["container"]}>
+                        <div
+                            className={[styles["room"], styles["room1"]].join(
+                                " "
+                            )}
+                        >
                             <RoomMenu
                                 currentMenu={currentMenu}
                                 setCurrentMenu={setCurrentMenu}
                             />
                         </div>
-                        <div className={[styles.room, styles.room2].join(" ")}>
+                        <div
+                            className={[styles["room"], styles["room2"]].join(
+                                " "
+                            )}
+                        >
                             {currentMenu === "home" && <RoomChat />}
                             {currentMenu === "storage" && (
                                 <RoomStorage
@@ -51,7 +59,11 @@ function Room({ userObj }) {
                             )}
                             {currentMenu === "archive" && <RoomArchive />}
                         </div>
-                        <div className={[styles.room, styles.room3].join(" ")}>
+                        <div
+                            className={[styles["room"], styles["room3"]].join(
+                                " "
+                            )}
+                        >
                             <RoomParticipants />
                             {
                                 <StartConferenceButton

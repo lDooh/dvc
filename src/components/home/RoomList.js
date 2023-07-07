@@ -22,9 +22,9 @@ function RoomList({ userObj }) {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={styles["container"]}>
             <button
-                className={styles["newButton"]}
+                className={styles["new-button"]}
                 onClick={showCreateRoomModal}
             >
                 새 회의 만들기
@@ -35,7 +35,7 @@ function RoomList({ userObj }) {
                     uid={userObj.uid}
                 />
             )}
-            <div className={styles.buttonContainer}>
+            <div className={styles["button-container"]}>
                 {roomList.map((roomObj) => (
                     <RoomButton key={roomObj.room_id} roomObj={roomObj} />
                 ))}

@@ -33,9 +33,9 @@ function CreateRoomModal({ setCreateRoomOpen, uid }) {
     };
 
     return (
-        <div className={styles.outside}>
+        <div className={styles["outside"]}>
             <div
-                className={styles.container}
+                className={styles["container"]}
                 onClick={(e) => e.stopPropagation()}
             >
                 <button onClick={closeCreateRoomModal}>←</button>

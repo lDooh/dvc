@@ -9,7 +9,7 @@ function RoomHeader({ room_title }) {
     };
 
     return (
-        <div className={styles.container}>
+        <div className={styles["container"]}>
             <button onClick={onClick}>뒤로</button>
             <p>{"회의실: " + room_title}</p>
         </div>

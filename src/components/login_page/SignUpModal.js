@@ -58,9 +58,9 @@ function SignInModal({ setSignUpOpen }) {
     };
 
     return (
-        <div className={styles.outside} onClick={closeSignUpModal}>
+        <div className={styles["outside"]} onClick={closeSignUpModal}>
             <div
-                className={styles.container}
+                className={styles["container"]}
                 onClick={(e) => e.stopPropagation()}
             >
                 <button onClick={closeSignUpModal}>←</button>

@@ -11,7 +11,7 @@ function RoomButton({ roomObj }) {
     };
 
     return (
-        <button onClick={onClick} className={styles.roomButton}>
+        <button onClick={onClick} className={styles["room-button"]}>
             {roomObj.room_title}
         </button>
     );

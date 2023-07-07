@@ -13,7 +13,7 @@ function Video({ stream }) {
 
     return (
         <video
-            className={styles.videoWidget}
+            className={styles["video-widget"]}
             ref={videoRef}
             autoPlay
             playsInline

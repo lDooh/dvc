@@ -107,13 +107,15 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
     return (
         <div
             className={
-                codeOpen ? styles.containerCodeOpen : styles.containerCodeClose
+                codeOpen
+                    ? styles["container-code-open"]
+                    : styles["container-code-close"]
             }
         >
             <div>
                 <video
                     ref={viderRef}
-                    className={styles.videoWidget}
+                    className={styles["video-widget"]}
                     autoPlay
                     playsInline
                     muted

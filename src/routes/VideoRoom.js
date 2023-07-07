@@ -46,10 +46,10 @@ function VideoRoom({ userObj }) {
                         codeOpen={codeOpen}
                         setCodeOpen={setCodeOpen}
                     />
-                    <div className={styles.container}>
+                    <div className={styles["container"]}>
                         <div
                             className={[
-                                styles.videoRoom,
+                                styles["video-room"],
                                 codeOpen
                                     ? styles["video-room1-code-open"]
                                     : styles["video-room1-code-close"],
@@ -76,7 +76,7 @@ function VideoRoom({ userObj }) {
                         )}
                         <div
                             className={[
-                                styles["videoRoom"],
+                                styles["video-room"],
                                 styles["video-room3"],
                             ].join(" ")}
                         >
