@@ -2,7 +2,7 @@ const express = require("express");
 const http = require("http");
 const path = require("path");
 const { Server } = require("socket.io");
-const { OpenVidu } = require("openvidu-node-client");
+const { OpenVidu, RecordingMode, Recording } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
@@ -11,6 +11,9 @@ const app = express();
 /**
  * before server start
  * docker run -p 4443:4443 --rm -e openvidu.secret=MY_SECRET -e openvidu.publicurl=https://localhost:4443 openvidu/openvidu-server-kms
+ *
+ * 아래 명령문은 권한 관련 오류
+ * docker run -p 4443:4443 --rm -e OPENVIDU_SECRET=MY_SECRET -e OPENVIDU_RECORDING=true -e OPENVIDU_RECORDING_PATH=/opt/openvidu/recordings -v /var/run/docker.sock:/var/run/docker.sock -v /opt/openvidu/recordings:/opt/openvidu/recordings openvidu/openvidu-dev:2.24.0
  */
 
 app.use(express.static(path.join(__dirname, "/build")));
@@ -170,13 +173,42 @@ ioServer.on("connection", (socket) => {
 
         // Create session if not exist
         if (!sessions[roomId]) {
-            ovProperties = {};
+            ovProperties = {
+                recordingMode: RecordingMode.MANUAL,
+                defaultRecordingProperties: {
+                    outputMode: Recording.OutputMode.COMPOSED,
+                    resolution: "640x480",
+                    frameRate: 24,
+                },
+            };
 
             try {
                 const createdSession = await openvidu.createSession(
                     ovProperties
                 );
                 sessions[roomId] = createdSession;
+
+                let recording;
+
+                socket.on("start_recording", () => {
+                    if (createdSession.recording) {
+                        return; // already recording
+                    }
+
+                    openvidu
+                        .startRecording(createdSession.sessionId, {
+                            name: "TEST_RECORDING_FILE",
+                        })
+                        .then((response) => (recording = response))
+                        .catch((err) => console.error("녹화 오류 : ", err));
+                });
+
+                socket.on("stop_recording", () => {
+                    openvidu
+                        .stopRecording(recording.id)
+                        .then((response) => (recording = response))
+                        .catch((err) => console.error("녹화 종료 오류: ", err));
+                });
             } catch (err) {
                 console.error("세션 생성 실패: ", err);
             }

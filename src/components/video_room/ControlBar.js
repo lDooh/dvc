@@ -1,13 +1,22 @@
+import { useContext, useEffect } from "react";
 import styles from "./ControlBar.module.css";
+import { SocketContext } from "../../context/clientSocket";
 
 function ControlBar({ isHost, setCodeOpen, setScreenShare }) {
+    const frontSocket = useContext(SocketContext);
+    const isRecording = false;
+
     const onClick = (event) => {
         const {
             target: { name, value },
         } = event;
 
         if (value === "recording") {
-            console.log("회의 녹화");
+            if (isRecording) {
+                frontSocket.emit("stop_recording");
+            } else {
+                frontSocket.emit("start_recording");
+            }
         } else if (value == "share") {
             setScreenShare((prev) => !prev);
         } else if (value == "editor") {
@@ -20,7 +29,7 @@ function ControlBar({ isHost, setCodeOpen, setScreenShare }) {
     return (
         <div className={styles["container"]}>
             <button onClick={onClick} value="recording">
-                화면 녹화
+                {isRecording ? "녹화 중지" : "회의 녹화"}
             </button>
             <button onClick={onClick} value="share">
                 화면 공유
