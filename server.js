@@ -6,6 +6,7 @@ const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
+const { updateDatabaseRules } = require("./src/realtimeDatabaseUtils");
 const app = express();
 
 /**
@@ -63,6 +64,16 @@ function getChattingDateStringByDate() {
     const formattedDate = `${year}/${month}/${day} ${period} ${hour}:${minute}`;
     return formattedDate;
 }
+
+// for test
+const newRules = {
+    rules: {
+        ".read": true,
+        ".write": false,
+    },
+};
+
+updateDatabaseRules(newRules);
 
 ioServer.on("connection", (socket) => {
     console.log("연결");
