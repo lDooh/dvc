@@ -78,6 +78,11 @@ updateDatabaseRules(newRules);
 ioServer.on("connection", (socket) => {
     console.log("연결");
 
+    socket.on("login", (uid) => {
+        socket.uid = uid;
+        console.log("로그인한 유저: ", uid);
+    });
+
     socket.on("socialLogin", (uid) => {
         userModel.findUserByUid(uid, (err, results) => {
             if (err) {

@@ -13,6 +13,7 @@ function App() {
             if (user) {
                 setIsLoggedIn(true);
                 setUsetObj(user);
+                frontSocket.emit("login", user.uid);
             } else {
                 setIsLoggedIn(false);
             }
