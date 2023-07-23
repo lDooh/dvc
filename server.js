@@ -75,12 +75,21 @@ const newRules = {
 
 updateDatabaseRules(newRules);
 
+function endConference(uid) {
+    roomModel.endConferenceByUid(uid, (err, results) => {
+        if (err) {
+            console.error("endConferenceByUid error: ", err);
+        } else {
+            console.log(`호스트 ${uid}의 회의 종료`);
+        }
+    });
+}
+
 ioServer.on("connection", (socket) => {
     console.log("연결");
 
     socket.on("login", (uid) => {
         socket.uid = uid;
-        console.log("로그인한 유저: ", uid);
     });
 
     socket.on("socialLogin", (uid) => {
@@ -226,15 +235,27 @@ ioServer.on("connection", (socket) => {
         });
     });
 
-    /* socket.on("disconnecting", () => {
-        // 연결이 끊긴 소켓이 회의의 호스트라면 회의 종료
-        // TODO: socket["uid"] 저장 필요
-        roomModel.endConferenceByUid(uid, (err, results) => {
-            if (err) {
-                console.error("endConferenceByUid error: ", err);
-            }
-        });
-    }); */
+    socket.on("logout", () => {
+        const uid = socket.uid;
+        console.log(`로그아웃: ${uid}`);
+        endConference(uid);
+        socket.uid = null;
+    });
+
+    socket.on("endConference", () => {
+        const uid = socket.uid;
+        console.log(`회의 종료: ${uid}`);
+        endConference(uid);
+    });
+
+    socket.on("disconnecting", () => {
+        // 연결이 끊긴 소켓이 로그인한 상태였고, 회의의 호스트라면 회의 종료
+        if (socket.uid) {
+            const uid = socket.uid ? socket.uid : null;
+            endConference(uid);
+        }
+        console.log("연결 끊김");
+    });
 });
 
 const serverUrl = "http://localhost";

@@ -1,13 +1,21 @@
 import { useNavigate } from "react-router-dom";
 import { authService } from "../../firebaseInstance";
 import styles from "./Profile.module.css";
+import { useContext } from "react";
+import { SocketContext } from "../../context/clientSocket";
 
 function Profile({ userObj }) {
     const navigate = useNavigate();
+    const frontSocket = useContext(SocketContext);
 
     const onLogOutClick = () => {
-        authService.signOut();
-        navigate("/", { replace: true });
+        if (window.confirm("로그아웃 하시겠습니까?")) {
+            authService.signOut();
+            frontSocket.emit("logout");
+            navigate("/", { replace: true });
+        } else {
+            return;
+        }
     };
 
     return (

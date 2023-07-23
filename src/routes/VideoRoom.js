@@ -66,6 +66,7 @@ function VideoRoom({ userObj }) {
                                     isHost={isHost}
                                     setCodeOpen={setCodeOpen}
                                     setScreenShare={setScreenShare}
+                                    roomId={roomId}
                                 />
                             )}
                         </div>
