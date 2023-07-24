@@ -19,13 +19,23 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
         );
     };
 
+    function streamChange(streamId) {
+        frontSocket.emit("streamId", streamId);
+    }
+
+    function onVideoClick(clickedStreamId) {
+        // const clickedStreamId = event.target.value;
+
+        console.log(`비디오 클릭: ${clickedStreamId}`);
+    }
+
     useEffect(() => {
         frontSocket.on("token", async (token, sessionId) => {
             session.current = OV.initSession();
 
             session.current.on("streamCreated", async (event) => {
-                console.log("streamCreated 이벤트");
                 const stream = event.stream;
+                console.log("streamCreated 이벤트: ", stream);
                 const subscriber = session.current.subscribe(stream);
 
                 const waitForMediaStream = setInterval(() => {
@@ -68,6 +78,17 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
             viderRef.current.srcObject =
                 camPublisher.current.stream.mediaStream;
             session.current.publish(camPublisher.current);
+
+            const waitCamPublish = setInterval(() => {
+                if (camPublisher.current.stream.streamId) {
+                    clearInterval(waitCamPublish);
+                    streamChange(camPublisher.current.stream.streamId);
+                }
+            }, 100);
+        });
+
+        frontSocket.on("streamId", (isSuccess) => {
+            console.log("streamId 전달: ", isSuccess);
         });
 
         frontSocket.emit("joinConference", uid, roomId);
@@ -94,6 +115,15 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                         viderRef.current.srcObject =
                             screenPublisher.current.stream.mediaStream;
                         session.current.publish(screenPublisher.current);
+
+                        const waitScreenPublish = setInterval(() => {
+                            if (screenPublisher.current.stream.streamId) {
+                                clearInterval(waitScreenPublish);
+                                streamChange(
+                                    screenPublisher.current.stream.streamId
+                                );
+                            }
+                        }, 100);
                     });
                 })();
             }
@@ -120,9 +150,16 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                     playsInline
                     muted
                 />
-                {streams.map((stream) => (
-                    <Video key={stream.streamId} stream={stream} />
-                ))}
+                {streams.map((stream) => {
+                    return (
+                        <div
+                            key={stream.streamId}
+                            onClick={() => onVideoClick(stream.streamId)}
+                        >
+                            <Video stream={stream} />
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );
