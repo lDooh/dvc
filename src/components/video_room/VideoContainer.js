@@ -3,8 +3,9 @@ import styles from "./VideoContainer.module.css";
 import { SocketContext } from "../../context/clientSocket";
 import { OpenVidu } from "openvidu-browser";
 import Video from "./Video";
+import CodeAuthorityModal from "./CodeAuthorityModal";
 
-function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
+function VideoContainer({ uid, roomId, codeOpen, screenShare, isHost }) {
     const [streams, setStreams] = useState([]);
     const frontSocket = useContext(SocketContext);
     const viderRef = useRef(null);
@@ -12,6 +13,8 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
     const screenPublisher = useRef(null);
     const session = useRef(null);
     const OV = new OpenVidu();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedStreamId, setSelectedStreamId] = useState("");
 
     const handleStreamRemoved = (streamId) => {
         setStreams((prevStreams) =>
@@ -24,9 +27,12 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
     }
 
     function onVideoClick(clickedStreamId) {
-        // const clickedStreamId = event.target.value;
-
-        console.log(`비디오 클릭: ${clickedStreamId}`);
+        if (isHost) {
+            setSelectedStreamId(clickedStreamId);
+            setModalOpen(true);
+        } else {
+            return;
+        }
     }
 
     useEffect(() => {
@@ -131,6 +137,13 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
             console.log("캠으로 전환");
             session.current.unpublish(screenPublisher.current);
             session.current.publish(camPublisher.current);
+
+            /* const waitCamPublish = setInterval(() => {
+                if (camPublisher.current.stream.streamId) {
+                    clearInterval(waitCamPublish);
+                    streamChange(camPublisher.current.stream.streamId);
+                }
+            }, 100); */
         }
     }, [screenShare]);
 
@@ -142,6 +155,13 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                     : styles["container-code-close"]
             }
         >
+            {isHost && modalOpen && (
+                <CodeAuthorityModal
+                    setModalOpen={setModalOpen}
+                    roomId={roomId}
+                    streamId={selectedStreamId}
+                />
+            )}
             <div>
                 <video
                     ref={viderRef}

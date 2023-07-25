@@ -29,6 +29,7 @@ const openViduUrl = "http://localhost:4443";
 const openViduSecret = "MY_SECRET";
 const openvidu = new OpenVidu(openViduUrl, openViduSecret);
 const sessions = {};
+const codeAuthority = {};
 
 function getChattingDateString(before) {
     const year = before.getFullYear();
@@ -80,9 +81,29 @@ function endConference(uid) {
         if (err) {
             console.error("endConferenceByUid error: ", err);
         } else {
-            console.log(`호스트 ${uid}의 회의 종료`);
+            if (results.affectedRows > 0) {
+                delete codeAuthority[uid];
+                console.log(`호스트 ${uid}의 회의 종료`);
+            }
         }
     });
+}
+
+async function findSocketByStreamId(roomId, streamId) {
+    const sockets = await ioServer.sockets.in(roomId).fetchSockets();
+
+    for (const socketId in sockets) {
+        const socket = sockets[socketId];
+
+        if (socket.streamId === streamId) {
+            console.log("Success to find socket by streamId");
+
+            return socket["uid"];
+        }
+    }
+
+    console.log("Failed to find socket by streamId");
+    return null;
 }
 
 ioServer.on("connection", (socket) => {
@@ -184,6 +205,8 @@ ioServer.on("connection", (socket) => {
             } else {
                 socket.join(roomId);
                 isStart = true;
+                socket.hostingConference = roomId; // 해당 소켓이 호스트인 room의 roomId 저장
+                codeAuthority[socket.uid] = [socket.uid]; // 호스트는 실시간 코드 편집 권한을 가짐
             }
 
             socket.emit("startConference", isStart);
@@ -215,6 +238,21 @@ ioServer.on("connection", (socket) => {
         const connection = await session.createConnection(connectionProperties);
         const token = connection.token;
         socket.emit("token", token, session.sessionId);
+    });
+
+    socket.on("streamId", (streamId) => {
+        if (streamId) {
+            socket["streamId"] = streamId;
+            socket.emit("streamId", true);
+            console.log("Successfully received streamId");
+        } else {
+            socket.emit("streamId", false);
+            console.log("Failed to receive streamId");
+        }
+    });
+
+    socket.on("authorize", (roomId, streamId) => {
+        findSocketByStreamId(roomId, streamId);
     });
 
     socket.on("sendRealtimeChat", (uid, roomId, msg) => {

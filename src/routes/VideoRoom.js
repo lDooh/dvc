@@ -60,6 +60,7 @@ function VideoRoom({ userObj }) {
                                 roomId={roomId}
                                 codeOpen={codeOpen}
                                 screenShare={screenShare}
+                                isHost={isHost}
                             />
                             {!codeOpen && (
                                 <ControlBar
