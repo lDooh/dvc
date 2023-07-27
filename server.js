@@ -6,7 +6,7 @@ const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
-const { updateDatabaseRules } = require("./src/realtimeDatabaseUtils");
+const { updateCodeRules } = require("./src/realtimeDatabaseUtils");
 const app = express();
 
 /**
@@ -66,23 +66,13 @@ function getChattingDateStringByDate() {
     return formattedDate;
 }
 
-// for test
-const newRules = {
-    rules: {
-        ".read": true,
-        ".write": false,
-    },
-};
-
-updateDatabaseRules(newRules);
-
 function endConference(uid) {
     roomModel.endConferenceByUid(uid, (err, results) => {
         if (err) {
             console.error("endConferenceByUid error: ", err);
         } else {
             if (results.affectedRows > 0) {
-                delete codeAuthority[uid];
+                // delete codeAuthority[uid];
                 console.log(`호스트 ${uid}의 회의 종료`);
             }
         }
@@ -105,6 +95,40 @@ async function findSocketByStreamId(roomId, streamId) {
     console.log("Failed to find socket by streamId");
     return null;
 }
+
+const codeRules = {
+    rules: {
+        ".read": true,
+        ".write": false,
+    },
+};
+
+function addCodePermission(roomId, newUid) {
+    if (codeRules["rules"][".write"] === false) {
+        console.log("write 규칙 초기화");
+        codeRules["rules"] = { ".read": true };
+        codeRules["rules"]["codes"] = {};
+    }
+
+    if (!codeRules["rules"]["codes"][roomId]) {
+        codeRules["rules"]["codes"][roomId] = {};
+    }
+
+    let authorizedUids = "(";
+    codeAuthority[roomId].push(newUid);
+    for (const uid of codeAuthority[roomId]) {
+        authorizedUids += `auth.uid === '${uid}' || `;
+    }
+    authorizedUids = authorizedUids.substring(0, authorizedUids.length - 4);
+    authorizedUids += ")";
+
+    codeRules["rules"]["codes"][roomId][".write"] =
+        "auth != null && " + authorizedUids;
+
+    updateCodeRules(codeRules);
+}
+
+updateCodeRules(codeRules);
 
 ioServer.on("connection", (socket) => {
     console.log("연결");
@@ -206,7 +230,8 @@ ioServer.on("connection", (socket) => {
                 socket.join(roomId);
                 isStart = true;
                 socket.hostingConference = roomId; // 해당 소켓이 호스트인 room의 roomId 저장
-                codeAuthority[socket.uid] = [socket.uid]; // 호스트는 실시간 코드 편집 권한을 가짐
+                codeAuthority[roomId] = [];
+                addCodePermission(roomId, socket.uid); // 호스트는 실시간 코드 편집 권한을 가짐
             }
 
             socket.emit("startConference", isStart);
@@ -251,8 +276,10 @@ ioServer.on("connection", (socket) => {
         }
     });
 
-    socket.on("authorize", (roomId, streamId) => {
-        findSocketByStreamId(roomId, streamId);
+    socket.on("authorize", async (roomId, streamId) => {
+        const uid = await findSocketByStreamId(roomId, streamId);
+
+        addCodePermission(roomId, uid);
     });
 
     socket.on("sendRealtimeChat", (uid, roomId, msg) => {
