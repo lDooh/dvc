@@ -3,8 +3,9 @@ import styles from "./VideoContainer.module.css";
 import { SocketContext } from "../../context/clientSocket";
 import { OpenVidu } from "openvidu-browser";
 import Video from "./Video";
+import CodeAuthorityModal from "./CodeAuthorityModal";
 
-function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
+function VideoContainer({ uid, roomId, codeOpen, screenShare, isHost }) {
     const [streams, setStreams] = useState([]);
     const frontSocket = useContext(SocketContext);
     const viderRef = useRef(null);
@@ -12,6 +13,8 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
     const screenPublisher = useRef(null);
     const session = useRef(null);
     const OV = new OpenVidu();
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedStreamId, setSelectedStreamId] = useState("");
 
     const handleStreamRemoved = (streamId) => {
         setStreams((prevStreams) =>
@@ -19,13 +22,30 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
         );
     };
 
+    function streamChange(streamId) {
+        frontSocket.emit("streamId", streamId);
+    }
+
+    function onVideoClick(clickedStreamId) {
+        if (isHost) {
+            if (codeOpen) {
+                return; // 코드 편집기가 닫혀 있는 상태에서만
+            }
+
+            setSelectedStreamId(clickedStreamId);
+            setModalOpen(true);
+        } else {
+            return;
+        }
+    }
+
     useEffect(() => {
         frontSocket.on("token", async (token, sessionId) => {
             session.current = OV.initSession();
 
             session.current.on("streamCreated", async (event) => {
-                console.log("streamCreated 이벤트");
                 const stream = event.stream;
+                console.log("streamCreated 이벤트: ", stream);
                 const subscriber = session.current.subscribe(stream);
 
                 const waitForMediaStream = setInterval(() => {
@@ -68,6 +88,17 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
             viderRef.current.srcObject =
                 camPublisher.current.stream.mediaStream;
             session.current.publish(camPublisher.current);
+
+            const waitCamPublish = setInterval(() => {
+                if (camPublisher.current.stream.streamId) {
+                    clearInterval(waitCamPublish);
+                    streamChange(camPublisher.current.stream.streamId);
+                }
+            }, 100);
+        });
+
+        frontSocket.on("streamId", (isSuccess) => {
+            console.log("streamId 전달: ", isSuccess);
         });
 
         frontSocket.emit("joinConference", uid, roomId);
@@ -94,6 +125,15 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                         viderRef.current.srcObject =
                             screenPublisher.current.stream.mediaStream;
                         session.current.publish(screenPublisher.current);
+
+                        const waitScreenPublish = setInterval(() => {
+                            if (screenPublisher.current.stream.streamId) {
+                                clearInterval(waitScreenPublish);
+                                streamChange(
+                                    screenPublisher.current.stream.streamId
+                                );
+                            }
+                        }, 100);
                     });
                 })();
             }
@@ -101,6 +141,13 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
             console.log("캠으로 전환");
             session.current.unpublish(screenPublisher.current);
             session.current.publish(camPublisher.current);
+
+            /* const waitCamPublish = setInterval(() => {
+                if (camPublisher.current.stream.streamId) {
+                    clearInterval(waitCamPublish);
+                    streamChange(camPublisher.current.stream.streamId);
+                }
+            }, 100); */
         }
     }, [screenShare]);
 
@@ -112,6 +159,13 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                     : styles["container-code-close"]
             }
         >
+            {isHost && modalOpen && (
+                <CodeAuthorityModal
+                    setModalOpen={setModalOpen}
+                    roomId={roomId}
+                    streamId={selectedStreamId}
+                />
+            )}
             <div>
                 <video
                     ref={viderRef}
@@ -120,9 +174,16 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare }) {
                     playsInline
                     muted
                 />
-                {streams.map((stream) => (
-                    <Video key={stream.streamId} stream={stream} />
-                ))}
+                {streams.map((stream) => {
+                    return (
+                        <div
+                            key={stream.streamId}
+                            onClick={() => onVideoClick(stream.streamId)}
+                        >
+                            <Video stream={stream} />
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

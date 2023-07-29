@@ -23,3 +23,21 @@ MYSQL_USER =
 MYSQL_PASSWORD = 
 MYSQL_DATABASE = 
 ```
+
+### Firebase Admin
+
++ Firebase Console - 프로젝트 설정 - 서비스 계정
+  + 새 비공개 키 생성
+  + 다운로드한 파일을 `/keystore` 디렉토리에 옮기기
+
+```js
+// src/realtimeDatabaseUtils.js
+
+const admin = require("firebase-admin");
+const adminSDKKey = require("../keystore/filename.json");
+
+admin.initializeApp({
+    credential: admin.credential.cert(adminSDKKey),
+    databaseURL: "https://project-bucket.firebaseio.com/",
+});
+```

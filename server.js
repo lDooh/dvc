@@ -6,6 +6,7 @@ const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
+const { updateCodeRules } = require("./src/realtimeDatabaseUtils");
 const app = express();
 
 /**
@@ -28,6 +29,7 @@ const openViduUrl = "http://localhost:4443";
 const openViduSecret = "MY_SECRET";
 const openvidu = new OpenVidu(openViduUrl, openViduSecret);
 const sessions = {};
+const codeAuthority = {};
 
 function getChattingDateString(before) {
     const year = before.getFullYear();
@@ -64,8 +66,104 @@ function getChattingDateStringByDate() {
     return formattedDate;
 }
 
+function endConference(uid) {
+    roomModel.endConferenceByUid(uid, (err, results) => {
+        if (err) {
+            console.error("endConferenceByUid error: ", err);
+        } else {
+            if (results.affectedRows > 0) {
+                // delete codeAuthority[uid];
+                console.log(`호스트 ${uid}의 회의 종료`);
+            }
+        }
+    });
+}
+
+async function findSocketByStreamId(roomId, streamId) {
+    const sockets = await ioServer.sockets.in(roomId).fetchSockets();
+
+    for (const socketId in sockets) {
+        const socket = sockets[socketId];
+
+        if (socket.streamId === streamId) {
+            console.log("Success to find socket by streamId");
+
+            return socket["uid"];
+        }
+    }
+
+    console.log("Failed to find socket by streamId");
+    return null;
+}
+
+const codeRules = {
+    rules: {
+        ".read": true,
+        ".write": false,
+    },
+};
+
+function initializeCodePermission(roomId) {
+    if (codeRules["rules"][".write"] === false) {
+        console.log("write 규칙 초기화");
+        codeRules["rules"] = { ".read": true };
+        codeRules["rules"]["codes"] = {};
+    }
+
+    if (!codeRules["rules"]["codes"][roomId]) {
+        codeRules["rules"]["codes"][roomId] = {};
+    }
+}
+
+/**
+ * Retrurn authorized uids string.
+ * @param {String} roomId
+ * @returns authorized uids "(auth.uid === '123...' || auth.uid === ...)"
+ */
+function getAuthorizedUids(roomId) {
+    let authorizedUids = "(";
+    for (const uid of codeAuthority[roomId]) {
+        authorizedUids += `auth.uid === '${uid}' || `;
+    }
+    authorizedUids = authorizedUids.substring(0, authorizedUids.length - 4);
+    authorizedUids += ")";
+
+    return authorizedUids;
+}
+
+function addCodePermission(roomId, newUid) {
+    initializeCodePermission(roomId);
+
+    codeAuthority[roomId].push(newUid);
+    const authorizedUids = getAuthorizedUids(roomId);
+
+    codeRules["rules"]["codes"][roomId][".write"] =
+        "auth != null && " + authorizedUids;
+
+    updateCodeRules(codeRules);
+}
+
+function removeCodePermission(roomId, deleteUid) {
+    codeAuthority[roomId] = codeAuthority[roomId].filter(
+        (uid) => uid != deleteUid
+    );
+
+    const authorizedUids = getAuthorizedUids(roomId);
+
+    codeRules["rules"]["codes"][roomId][".write"] =
+        "auth != null && " + authorizedUids;
+
+    updateCodeRules(codeRules);
+}
+
+updateCodeRules(codeRules);
+
 ioServer.on("connection", (socket) => {
     console.log("연결");
+
+    socket.on("login", (uid) => {
+        socket.uid = uid;
+    });
 
     socket.on("socialLogin", (uid) => {
         userModel.findUserByUid(uid, (err, results) => {
@@ -159,6 +257,9 @@ ioServer.on("connection", (socket) => {
             } else {
                 socket.join(roomId);
                 isStart = true;
+                socket.hostingConference = roomId; // 해당 소켓이 호스트인 room의 roomId 저장
+                codeAuthority[roomId] = [];
+                addCodePermission(roomId, socket.uid); // 호스트는 실시간 코드 편집 권한을 가짐
             }
 
             socket.emit("startConference", isStart);
@@ -192,6 +293,29 @@ ioServer.on("connection", (socket) => {
         socket.emit("token", token, session.sessionId);
     });
 
+    socket.on("streamId", (streamId) => {
+        if (streamId) {
+            socket["streamId"] = streamId;
+            socket.emit("streamId", true);
+            console.log("Successfully received streamId");
+        } else {
+            socket.emit("streamId", false);
+            console.log("Failed to receive streamId");
+        }
+    });
+
+    socket.on("authorize", async (roomId, streamId) => {
+        const uid = await findSocketByStreamId(roomId, streamId);
+
+        addCodePermission(roomId, uid);
+    });
+
+    socket.on("unauthorize", async (roomId, streamId) => {
+        const uid = await findSocketByStreamId(roomId, streamId);
+
+        removeCodePermission(roomId, uid);
+    });
+
     socket.on("sendRealtimeChat", (uid, roomId, msg) => {
         userModel.findUserByUid(uid, (err, results) => {
             if (err) {
@@ -210,15 +334,27 @@ ioServer.on("connection", (socket) => {
         });
     });
 
-    /* socket.on("disconnecting", () => {
-        // 연결이 끊긴 소켓이 회의의 호스트라면 회의 종료
-        // TODO: socket["uid"] 저장 필요
-        roomModel.endConferenceByUid(uid, (err, results) => {
-            if (err) {
-                console.error("endConferenceByUid error: ", err);
-            }
-        });
-    }); */
+    socket.on("logout", () => {
+        const uid = socket.uid;
+        console.log(`로그아웃: ${uid}`);
+        endConference(uid);
+        socket.uid = null;
+    });
+
+    socket.on("endConference", () => {
+        const uid = socket.uid;
+        console.log(`회의 종료: ${uid}`);
+        endConference(uid);
+    });
+
+    socket.on("disconnecting", () => {
+        // 연결이 끊긴 소켓이 로그인한 상태였고, 회의의 호스트라면 회의 종료
+        if (socket.uid) {
+            const uid = socket.uid ? socket.uid : null;
+            endConference(uid);
+        }
+        console.log("연결 끊김");
+    });
 });
 
 const serverUrl = "http://localhost";

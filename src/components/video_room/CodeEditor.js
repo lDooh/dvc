@@ -22,12 +22,12 @@ function CodeEditor({ roomId }) {
 
         codeMirrorRef.current.on("change", (instance) => {
             const value = instance.getValue();
-            const documentRef = firebaseDatabase.ref(`documents/${roomId}`);
+            const documentRef = firebaseDatabase.ref(`codes/${roomId}`);
             documentRef.set({ value });
         });
 
         firebaseDatabase
-            .ref(`documents/${roomId}/value`)
+            .ref(`codes/${roomId}/value`)
             .on("value", (snapshot) => {
                 const text = snapshot.val();
                 const cursor = codeMirrorRef.current.getCursor(); // 현재 커서 위치 저장
