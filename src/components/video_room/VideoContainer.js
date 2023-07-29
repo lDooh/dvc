@@ -28,6 +28,10 @@ function VideoContainer({ uid, roomId, codeOpen, screenShare, isHost }) {
 
     function onVideoClick(clickedStreamId) {
         if (isHost) {
+            if (codeOpen) {
+                return; // 코드 편집기가 닫혀 있는 상태에서만
+            }
+
             setSelectedStreamId(clickedStreamId);
             setModalOpen(true);
         } else {

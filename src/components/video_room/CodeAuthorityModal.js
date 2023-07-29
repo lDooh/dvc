@@ -14,13 +14,15 @@ function CodeAuthorityModal({ setModalOpen, roomId, streamId }) {
 
         if (authorize === "yes") {
             frontSocket.emit("authorize", roomId, streamId);
+        } else if (authorize === "no") {
+            frontSocket.emit("unauthorize", roomId, streamId);
         }
 
         closeModal();
     };
 
     return (
-        <div className={styles["outside"]}>
+        <div className={styles["outside"]} onClick={closeModal}>
             <div
                 className={styles["container"]}
                 onClick={(e) => e.stopPropagation()}
@@ -28,10 +30,10 @@ function CodeAuthorityModal({ setModalOpen, roomId, streamId }) {
                 <button onClick={closeModal}>←</button>
                 <div>
                     <button onClick={onClick} value="yes">
-                        확인
+                        권한 부여
                     </button>
                     <button onClick={onClick} value="no">
-                        취소
+                        권한 철회
                     </button>
                 </div>
             </div>

@@ -103,7 +103,7 @@ const codeRules = {
     },
 };
 
-function addCodePermission(roomId, newUid) {
+function initializeCodePermission(roomId) {
     if (codeRules["rules"][".write"] === false) {
         console.log("write 규칙 초기화");
         codeRules["rules"] = { ".read": true };
@@ -113,14 +113,42 @@ function addCodePermission(roomId, newUid) {
     if (!codeRules["rules"]["codes"][roomId]) {
         codeRules["rules"]["codes"][roomId] = {};
     }
+}
 
+/**
+ * Retrurn authorized uids string.
+ * @param {String} roomId
+ * @returns authorized uids "(auth.uid === '123...' || auth.uid === ...)"
+ */
+function getAuthorizedUids(roomId) {
     let authorizedUids = "(";
-    codeAuthority[roomId].push(newUid);
     for (const uid of codeAuthority[roomId]) {
         authorizedUids += `auth.uid === '${uid}' || `;
     }
     authorizedUids = authorizedUids.substring(0, authorizedUids.length - 4);
     authorizedUids += ")";
+
+    return authorizedUids;
+}
+
+function addCodePermission(roomId, newUid) {
+    initializeCodePermission(roomId);
+
+    codeAuthority[roomId].push(newUid);
+    const authorizedUids = getAuthorizedUids(roomId);
+
+    codeRules["rules"]["codes"][roomId][".write"] =
+        "auth != null && " + authorizedUids;
+
+    updateCodeRules(codeRules);
+}
+
+function removeCodePermission(roomId, deleteUid) {
+    codeAuthority[roomId] = codeAuthority[roomId].filter(
+        (uid) => uid != deleteUid
+    );
+
+    const authorizedUids = getAuthorizedUids(roomId);
 
     codeRules["rules"]["codes"][roomId][".write"] =
         "auth != null && " + authorizedUids;
@@ -280,6 +308,12 @@ ioServer.on("connection", (socket) => {
         const uid = await findSocketByStreamId(roomId, streamId);
 
         addCodePermission(roomId, uid);
+    });
+
+    socket.on("unauthorize", async (roomId, streamId) => {
+        const uid = await findSocketByStreamId(roomId, streamId);
+
+        removeCodePermission(roomId, uid);
     });
 
     socket.on("sendRealtimeChat", (uid, roomId, msg) => {
