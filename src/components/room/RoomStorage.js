@@ -3,6 +3,7 @@ import styles from "./RoomStorage.module.css";
 import { firebaseStorage } from "../../firebaseInstance";
 
 function RoomStorage({ roomId, userObj }) {
+    const [init, setInit] = useState(false);
     const [fileList, setFileList] = useState([]);
 
     function getFormatDate() {
@@ -16,26 +17,30 @@ function RoomStorage({ roomId, userObj }) {
         return `${year}/${month}/${day} ${hours}:${minutes}`;
     }
 
-    useEffect(() => {
-        (async () => {
-            const listResult = await firebaseStorage
-                .ref()
-                .child(`${roomId}`)
-                .listAll();
+    async function refreshFileList() {
+        const listResult = await firebaseStorage
+            .ref()
+            .child(`${roomId}`)
+            .listAll();
 
-            const files = await Promise.all(
-                listResult.items.map(async (item) => {
-                    const metadata = await item.getMetadata();
-                    const customMetadata = metadata.customMetadata;
-                    return {
-                        filename: item.name,
-                        uploadDate: customMetadata.uploadDate,
-                        uploader: customMetadata.uploader,
-                    };
-                })
-            );
-            setFileList(files);
-            // console.log("파일들: ", files);
+        const files = await Promise.all(
+            listResult.items.map(async (item) => {
+                const metadata = await item.getMetadata();
+                const customMetadata = metadata.customMetadata;
+                return {
+                    filename: item.name,
+                    uploadDate: customMetadata.uploadDate,
+                    uploader: customMetadata.uploader,
+                };
+            })
+        );
+        setFileList(files);
+        setInit(true);
+    }
+
+    useEffect(() => {
+        (() => {
+            refreshFileList();
         })();
     }, []);
 
@@ -84,6 +89,8 @@ function RoomStorage({ roomId, userObj }) {
                     console.log("File available at", downloadURL);
                 }); */
                 console.log("File upload Completed.");
+
+                refreshFileList();
             }
         );
 
@@ -118,61 +125,69 @@ function RoomStorage({ roomId, userObj }) {
 
     return (
         <div className={styles["container"]}>
-            <table className={styles["container"]}>
-                <tr>
-                    <th
-                        className={[styles["item"], styles["file-name"]].join(
-                            " "
-                        )}
-                    >
-                        파일 이름
-                    </th>
-                    <th
-                        className={[styles["item"], styles["file-date"]].join(
-                            " "
-                        )}
-                    >
-                        수정 일시
-                    </th>
-                    <th
-                        className={[
-                            styles["item"],
-                            styles["file-uploader"],
-                        ].join(" ")}
-                    >
-                        게시자
-                    </th>
-                </tr>
-                <tbody>
-                    {fileList.map((fileObj, index) => (
-                        <tr key={index}>
-                            <td
-                                onClick={() => onFileClick(fileObj.filename)}
-                                className={styles["item"]}
-                            >
-                                {fileObj.filename}
-                            </td>
-                            <td className={styles["item"]}>
-                                {fileObj.uploadDate}
-                            </td>
-                            <td className={styles["item"]}>
-                                {fileObj.uploader}
+            {init ? (
+                <table className={styles["container"]}>
+                    <tr>
+                        <th
+                            className={[
+                                styles["item"],
+                                styles["file-name"],
+                            ].join(" ")}
+                        >
+                            파일 이름
+                        </th>
+                        <th
+                            className={[
+                                styles["item"],
+                                styles["file-date"],
+                            ].join(" ")}
+                        >
+                            수정 일시
+                        </th>
+                        <th
+                            className={[
+                                styles["item"],
+                                styles["file-uploader"],
+                            ].join(" ")}
+                        >
+                            게시자
+                        </th>
+                    </tr>
+                    <tbody>
+                        {fileList.map((fileObj, index) => (
+                            <tr key={index}>
+                                <td
+                                    onClick={() =>
+                                        onFileClick(fileObj.filename)
+                                    }
+                                    className={styles["item"]}
+                                >
+                                    {fileObj.filename}
+                                </td>
+                                <td className={styles["item"]}>
+                                    {fileObj.uploadDate}
+                                </td>
+                                <td className={styles["item"]}>
+                                    {fileObj.uploader}
+                                </td>
+                            </tr>
+                        ))}
+                        <tr>
+                            <td colSpan={3} className={styles["foot"]}>
+                                <input
+                                    type="file"
+                                    id="file-input"
+                                    onChange={onFileChange}
+                                    className={styles["hidden"]}
+                                />
+                                <button onClick={onClick}>파일 업로드</button>
                             </td>
                         </tr>
-                    ))}
-                    <tr>
-                        <td colSpan={3} className={styles["foot"]}>
-                            <input
-                                type="file"
-                                id="file-input"
-                                onChange={onFileChange}
-                                className={styles["hidden"]}
-                            />
-                            <button onClick={onClick}>파일 업로드</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+                    </tbody>
+                </table>
+            ) : (
+                "파일 로딩중..."
+            )}
         </div>
     );
 }
