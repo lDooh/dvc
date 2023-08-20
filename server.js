@@ -198,11 +198,17 @@ ioServer.on("connection", (socket) => {
     });
 
     socket.on("createRoom", (uid, roomTitle) => {
-        roomModel.createRoom(uid, roomTitle, (err, results) => {
+        roomModel.createRoom(uid, roomTitle, (err, results, newRoomId) => {
             if (err) {
                 console.error("createRoom error: ", err);
                 return;
             }
+            socket.emit("createRoom", {
+                room_id: newRoomId,
+                uid: uid,
+                room_title: roomTitle,
+                inProgress: false,
+            });
         });
     });
 

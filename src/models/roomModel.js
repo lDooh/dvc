@@ -23,7 +23,7 @@ function createRoom(uid, roomTitle, callback) {
                 return callback(_err);
             }
         });
-        return callback(null, results);
+        return callback(null, results, roomId);
     });
 }
 
