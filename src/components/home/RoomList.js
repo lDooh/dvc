@@ -11,10 +11,13 @@ function RoomList({ userObj }) {
 
     useEffect(() => {
         frontSocket.on("getRooms", (rooms) => {
-            // console.log("참여한 회의실들: ", rooms);
             setRoomList(rooms);
         });
         frontSocket.emit("getRooms", userObj.uid);
+
+        frontSocket.on("createRoom", (roomObj) => {
+            setRoomList((prev) => [...prev, roomObj]);
+        });
     }, []);
 
     const showCreateRoomModal = () => {
