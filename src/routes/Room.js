@@ -50,7 +50,13 @@ function Room({ userObj }) {
                                 " "
                             )}
                         >
-                            {currentMenu === "home" && <RoomChat />}
+                            {currentMenu === "home" && (
+                                <RoomChat
+                                    uid={userObj.uid}
+                                    nickname={userObj.nickname}
+                                    roomId={roomId}
+                                />
+                            )}
                             {currentMenu === "storage" && (
                                 <RoomStorage
                                     roomId={roomId}
