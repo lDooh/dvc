@@ -6,25 +6,28 @@
 
 .myself {
     text-align: right;
+    float: right;
+    margin-left: auto;
+    margin-right: 10px;
 }
 
 .not-myself {
     text-align: left;
+    float: left;
 }
 
 .chat-common {
     overflow-wrap: anywhere;
     min-height: 50px;
     padding: 5px;
+    width: fit-content;
 }
 
 .chat-room {
-    width: 97%;
     border: 2px solid greenyellow;
 }
 
 .chat-conference {
-    width: 97%;
     border: 2px solid greenyellow;
 }
 

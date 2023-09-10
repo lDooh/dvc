@@ -229,6 +229,8 @@ ioServer.on("connection", (socket) => {
                 return;
             }
 
+            socket.join(roomId);
+
             socket.emit(
                 "roomTitle",
                 results[0].room_title,
@@ -251,6 +253,24 @@ ioServer.on("connection", (socket) => {
                 results[0].inProgress
             );
         });
+    });
+
+    socket.on("roomChatRecord", (uid, roomId) => {
+        // db
+    });
+
+    socket.on("sendRoomChat", (uid, roomId, msg) => {
+        // db
+
+        socket
+            .to(roomId)
+            .emit(
+                "receiveRoomChat",
+                uid,
+                "닉네임",
+                msg,
+                getChattingDateStringByDate()
+            );
     });
 
     socket.on("startConference", (roomId) => {
