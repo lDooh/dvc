@@ -1,0 +1,56 @@
+version: "3"
+services:
+    mysql:
+        image: mysql:8.0
+        container_name: mymysql
+        environment:
+            MYSQL_ROOT_PASSWORD: 1234
+            MYSQL_DATABASE: dvc
+            MYSQL_USER: ${MYSQL_USER}
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+        networks:
+            - dvc_network
+        ports:
+            - 3306:3306
+        command: --init-file /docker-entrypoint-initdb.d/init.sql
+        volumes:
+            - mysql-data:/var/lib/mysql
+            - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+        restart: always
+    openvidu:
+        image: openvidu/openvidu-server-kms
+        container_name: my_openvidu
+        ports:
+            - "4443:4443"
+        environment:
+            - openvidu.secret=MY_SECRET
+            - openvidu.publicurl=https://localhost:4443
+        networks:
+            - dvc_network
+        restart: always
+    dvc:
+        build:
+            context: .
+            dockerfile: ./Dockerfile
+        container_name: code_collab_container
+        depends_on:
+            - openvidu
+        environment:
+            REACT_APP_API_KEY: ${REACT_APP_API_KEY}
+            REACT_APP_AUTH_DOMAIN: ${REACT_APP_AUTH_DOMAIN}
+            REACT_APP_DATABASE_URL: ${REACT_APP_DATABASE_URL}
+            REACT_APP_PROJECT_ID: ${REACT_APP_PROJECT_ID}
+            REACT_APP_STORAGE_BUCKET: ${REACT_APP_STORAGE_BUCKET}
+            REACT_APP_MESSAGIN_ID: ${REACT_APP_MESSAGIN_ID}
+            REACT_APP_APP_ID: ${REACT_APP_APP_ID}
+        networks:
+            - dvc_network
+        ports:
+            - "3000:3000"
+        restart: always
+
+networks:
+    dvc_network:
+
+volumes:
+    mysql-data:

@@ -6,6 +6,10 @@ npm run build
 node server.js
 ```
 
+```bash
+docker-compose up
+```
+
 ## Project setup
 + `.env` file
 ```env
@@ -17,7 +21,9 @@ REACT_APP_STORAGE_BUCKET =
 REACT_APP_MESSAGIN_ID = 
 REACT_APP_APP_ID = 
 
-MYSQL_HOST = 
+MYSQL_HOST = localhost
+# docker-compose 사용 시
+# MYSQL_HOST = mysql
 MYSQL_PORT = 
 MYSQL_USER = 
 MYSQL_PASSWORD = 
