@@ -8,6 +8,7 @@ import LoginPage from "../routes/LoginPage";
 import Home from "../routes/Home";
 import Room from "../routes/Room";
 import VideoRoom from "../routes/VideoRoom";
+import Invitation from "../routes/Invitation";
 
 function AppRouter({ isLoggedIn, userObj }) {
     return (
@@ -19,6 +20,11 @@ function AppRouter({ isLoggedIn, userObj }) {
                             exact
                             path="/"
                             element={<Home userObj={userObj} />}
+                        />
+                        <Route
+                            exact
+                            path="/invitation/:roomid"
+                            element={<Invitation userObj={userObj} />}
                         />
                         <Route
                             exact
