@@ -79,7 +79,7 @@ function endConferenceByUid(uid, callback) {
 }
 
 /**
- * Return room title.
+ * Return room informtaion.
  * @param {String} roomId
  * @param {Function} callback
  */
