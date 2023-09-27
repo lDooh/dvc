@@ -28,6 +28,7 @@ CREATE TABLE room (
     uid				VARCHAR(128)	NOT NULL,
     room_title		VARCHAR(30)		NOT NULL,
     inProgress        BOOLEAN        NOT NULL DEFAULT FALSE,
+    room_password	VARCHAR(50)		DEFAULT NULL,
     PRIMARY KEY (room_id),
     FOREIGN KEY (uid) REFERENCES user(uid)
 );
