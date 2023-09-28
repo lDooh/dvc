@@ -113,6 +113,44 @@ function getRoomByUid(uid, callback) {
     });
 }
 
+/**
+ * Return password correct. If password is correct return 1, or return 0
+ * @param {String} roomId
+ * @param {String} roomPassword
+ * @param {Function} callback
+ */
+function checkRoomPassword(roomId, roomPassword, callback) {
+    const sql =
+        "SELECT COUNT(room_id) FROM room WHERE room_id = ? AND (room_password = ? OR room_password IS NULL)";
+    const pool = db.pool;
+
+    pool.query(sql, [roomId, roomPassword], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+        return callback(null, results);
+    });
+}
+
+/**
+ * Join the user in the room.
+ * @param {String} uid
+ * @param {String} roomId
+ * @param {Function} callback
+ */
+function enterRoomByRoomId(uid, roomId, callback) {
+    const sql = "INSERT INTO participation VALUES (?, ?)";
+    const pool = db.pool;
+
+    pool.query(sql, [roomId, uid], (err, results, fields) => {
+        if (err) {
+            return callback(err);
+        }
+
+        return callback(null, results);
+    });
+}
+
 module.exports = {
     createRoom,
     // isInProgress,
@@ -120,4 +158,6 @@ module.exports = {
     endConferenceByUid,
     getRoomByRoomId,
     getRoomByUid,
+    checkRoomPassword,
+    enterRoomByRoomId,
 };

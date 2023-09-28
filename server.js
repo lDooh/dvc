@@ -197,6 +197,41 @@ ioServer.on("connection", (socket) => {
         });
     });
 
+    socket.on("invitation", (uid, roomId, roomPassword) => {
+        // room 존재 여부 체크
+        roomModel.getRoomByRoomId(roomId, (err, results) => {
+            if (err) {
+                console.error("getRoomByRoomId error: ", err);
+                socket.emit("invitaion", false);
+                return;
+            }
+
+            // 비밀번호 체크
+            roomModel.checkRoomPassword(
+                roomId,
+                roomPassword,
+                (err, results) => {
+                    if (err) {
+                        console.error("checkRoomPassword error: ", err);
+                        socket.emit("invitaion", false);
+                        return;
+                    }
+
+                    // 회의실 입장 처리
+                    roomModel.enterRoomByRoomId(uid, roomId, (err, results) => {
+                        if (err) {
+                            console.error("enterRoomByRoomId error: ", err);
+                            socket.emit("invitation", false);
+                            return;
+                        }
+                    });
+                }
+            );
+        });
+
+        socket.emit("invitation", true);
+    });
+
     socket.on("createRoom", (uid, roomTitle) => {
         roomModel.createRoom(uid, roomTitle, (err, results, newRoomId) => {
             if (err) {
