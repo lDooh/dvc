@@ -9,16 +9,23 @@ function Invitation({ userObj }) {
     const navigate = useNavigate();
 
     useEffect(() => {
-        frontSocket.on("invitation", (success) => {
+        frontSocket.on("invitation", (success, code) => {
             if (success) {
                 navigate(`/room/${roomId}`, {
                     replace: true,
                 });
             } else {
-                alert("회의실 입장에 실패하였습니다.");
-                navigate(`/`, {
-                    replace: true,
-                });
+                if (code == 2) {
+                    alert("이미 입장한 회의실입니다.");
+                    navigate(`/room/${roomId}`, {
+                        replace: true,
+                    });
+                } else {
+                    alert("회의실 입장에 실패하였습니다.");
+                    navigate(`/`, {
+                        replace: true,
+                    });
+                }
             }
         });
 

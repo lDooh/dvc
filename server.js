@@ -197,39 +197,75 @@ ioServer.on("connection", (socket) => {
         });
     });
 
+    // db 에러시 오류 코드 1
     socket.on("invitation", (uid, roomId, roomPassword) => {
         // room 존재 여부 체크
         roomModel.getRoomByRoomId(roomId, (err, results) => {
             if (err) {
                 console.error("getRoomByRoomId error: ", err);
-                socket.emit("invitaion", false);
+                socket.emit("invitation", false, 1);
                 return;
             }
 
-            // 비밀번호 체크
-            roomModel.checkRoomPassword(
+            // 이미 회의에 참여중인지 확인
+            roomModel.getParticipationByUidAndRoomId(
+                uid,
                 roomId,
-                roomPassword,
                 (err, results) => {
                     if (err) {
-                        console.error("checkRoomPassword error: ", err);
-                        socket.emit("invitaion", false);
+                        console.error(
+                            "getParticipationByUidAndRoomId error: ",
+                            err
+                        );
+                        socket.emit("invitation", false, 1);
                         return;
                     }
 
-                    // 회의실 입장 처리
-                    roomModel.enterRoomByRoomId(uid, roomId, (err, results) => {
-                        if (err) {
-                            console.error("enterRoomByRoomId error: ", err);
-                            socket.emit("invitation", false);
-                            return;
+                    // 이미 참여중임
+                    if (results[0]["COUNT"] == 1) {
+                        socket.emit("invitation", false, 2);
+                        return;
+                    }
+
+                    // 비밀번호 체크
+                    roomModel.checkRoomPassword(
+                        roomId,
+                        roomPassword,
+                        (err, results) => {
+                            if (err) {
+                                console.error("checkRoomPassword error: ", err);
+                                socket.emit("invitation", false, 1);
+                                return;
+                            }
+
+                            // 비밀번호 불일치
+                            if (results[0]["COUNT"] == 0) {
+                                socket.emit("invitation", false, 3);
+                                return;
+                            }
+
+                            // 회의실 입장 처리
+                            roomModel.enterRoomByRoomId(
+                                uid,
+                                roomId,
+                                (err, results) => {
+                                    if (err) {
+                                        console.error(
+                                            "enterRoomByRoomId error: ",
+                                            err
+                                        );
+                                        socket.emit("invitation", false, 1);
+                                        return;
+                                    }
+                                }
+                            );
                         }
-                    });
+                    );
                 }
             );
         });
 
-        socket.emit("invitation", true);
+        socket.emit("invitation", true, 0);
     });
 
     socket.on("createRoom", (uid, roomTitle) => {
