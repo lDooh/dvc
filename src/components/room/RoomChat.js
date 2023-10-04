@@ -7,14 +7,14 @@ function RoomChat({ uid, nickname, roomId }) {
     const frontSocket = useContext(SocketContext);
     const [msg, setMsg] = useState("");
     const [chatList, setChatList] = useState([]);
-    const [init, setInit] = useState(false);
+    const [init, setInit] = useState(true);
 
     const onChange = (event) => {
         setMsg(event.target.value);
     };
 
     const onClick = () => {
-        frontSocket.emit("sendRoomChat", uid, roomId, msg);
+        frontSocket.emit("sendRoomChat", uid, nickname, roomId, msg);
 
         const currentDate = new Date();
         const year = currentDate.getFullYear();

@@ -6,6 +6,7 @@ const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
+const chatModel = require("./src/models/chatModel");
 const { updateCodeRules } = require("./src/realtimeDatabaseUtils");
 const app = express();
 
@@ -330,18 +331,23 @@ ioServer.on("connection", (socket) => {
         // db
     });
 
-    socket.on("sendRoomChat", (uid, roomId, msg) => {
-        // db
+    socket.on("sendRoomChat", (uid, nickname, roomId, msg) => {
+        chatModel.sendNewRoomChatting(uid, roomId, msg, (err, result) => {
+            if (err) {
+                console.error("sendRoomChat error: ", err);
+                return;
+            }
 
-        socket
-            .to(roomId)
-            .emit(
-                "receiveRoomChat",
-                uid,
-                "닉네임",
-                msg,
-                getChattingDateStringByDate()
-            );
+            socket
+                .to(roomId)
+                .emit(
+                    "receiveRoomChat",
+                    uid,
+                    nickname,
+                    msg,
+                    getChattingDateStringByDate()
+                );
+        });
     });
 
     socket.on("startConference", (roomId) => {
