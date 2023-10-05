@@ -68,7 +68,7 @@ function RoomChat({ uid, nickname, roomId }) {
             }
         );
 
-        frontSocket.emit("roomChatRecord", (uid, roomId));
+        frontSocket.emit("roomChatRecord", uid, roomId);
     }, []);
 
     return (
