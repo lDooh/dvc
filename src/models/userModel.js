@@ -55,8 +55,33 @@ function signUpUser(uid, password, nickname, callback) {
     );
 }
 
+/**
+ * Return nickname.
+ * @param {String} uid
+ * @param {Function} callback
+ */
+async function findNicknameByUid(uid) {
+    const sql = "SELECT nickname FROM user WHERE uid = ?";
+    const pool = db.pool.promise();
+    const result = {};
+
+    try {
+        const [row, fields] = await pool.query(sql, [uid]);
+
+        result["state"] = true;
+        result["nickname"] = row[0]["nickname"];
+        return result;
+    } catch (err) {
+        console.error("findNicknameByUid catch error: ", err);
+        result["state"] = false;
+        return result;
+    } finally {
+    }
+}
+
 module.exports = {
     getAllUsers,
     findUserByUid,
     signUpUser,
+    findNicknameByUid,
 };

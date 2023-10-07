@@ -328,11 +328,46 @@ ioServer.on("connection", (socket) => {
     });
 
     socket.on("roomChatRecord", (uid, roomId) => {
-        // db
+        const chats = [];
+
+        chatModel.getRoomChatByRoomId(roomId, async (err, results) => {
+            if (err) {
+                console.error("getRoomChatByRoomId error: ", err);
+                return;
+            }
+
+            for (const result of results) {
+                const chat = {};
+
+                for (const key in result) {
+                    const value = result[key];
+
+                    if (key === "uid") {
+                        chat["senderId"] = value;
+
+                        const nicknameResult =
+                            await userModel.findNicknameByUid(uid);
+                        chat["nickname"] = nicknameResult["state"]
+                            ? nicknameResult["nickname"]
+                            : undefined;
+
+                        chat["myself"] = uid === value ? true : false;
+                    } else if (key === "message") {
+                        chat["msg"] = value;
+                    } else if (key === "chat_time") {
+                        chat["chatTime"] = getChattingDateString(value);
+                    }
+                }
+
+                chats.push(chat);
+            }
+
+            socket.emit("roomChatRecord", chats);
+        });
     });
 
     socket.on("sendRoomChat", (uid, nickname, roomId, msg) => {
-        chatModel.sendNewRoomChatting(uid, roomId, msg, (err, result) => {
+        chatModel.sendNewRoomChatting(uid, roomId, msg, (err, results) => {
             if (err) {
                 console.error("sendRoomChat error: ", err);
                 return;
