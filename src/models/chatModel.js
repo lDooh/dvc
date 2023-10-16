@@ -3,14 +3,16 @@ const db = require("../db");
 /**
  * Return uid, message, time of chatting.
  * @param {String} roomId
+ * @param {Number} limit
+ * @param {Number} offset
  * @param {Function} callback
  */
-function getRoomChatByRoomId(roomId, callback) {
+function getRoomChatByRoomId(roomId, limit, offset, callback) {
     const sql =
-        "SELECT uid, message, chat_time FROM room_chat WHERE room_id = ? ORDER BY chat_time";
+        "SELECT uid, message, chat_time FROM room_chat WHERE room_id = ? ORDER BY chat_time DESC LIMIT ? OFFSET ?";
     const pool = db.pool;
 
-    pool.query(sql, [roomId], (err, results, fields) => {
+    pool.query(sql, [roomId, limit, offset], (err, results, fields) => {
         if (err) {
             return callback(err);
         }
