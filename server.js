@@ -6,6 +6,7 @@ const { OpenVidu } = require("openvidu-node-client");
 require("dotenv").config();
 const userModel = require("./src/models/userModel");
 const roomModel = require("./src/models/roomModel");
+const chatModel = require("./src/models/chatModel");
 const { updateCodeRules } = require("./src/realtimeDatabaseUtils");
 const app = express();
 
@@ -326,22 +327,67 @@ ioServer.on("connection", (socket) => {
         });
     });
 
-    socket.on("roomChatRecord", (uid, roomId) => {
-        // db
+    socket.on("roomChatRecord", (uid, roomId, limit, offset) => {
+        const chats = [];
+
+        chatModel.getRoomChatByRoomId(
+            roomId,
+            limit,
+            offset,
+            async (err, results) => {
+                if (err) {
+                    console.error("getRoomChatByRoomId error: ", err);
+                    return;
+                }
+
+                for (const result of results) {
+                    const chat = {};
+
+                    for (const key in result) {
+                        const value = result[key];
+
+                        if (key === "uid") {
+                            chat["senderId"] = value;
+
+                            const nicknameResult =
+                                await userModel.findNicknameByUid(uid);
+                            chat["nickname"] = nicknameResult["state"]
+                                ? nicknameResult["nickname"]
+                                : undefined;
+
+                            chat["myself"] = uid === value ? true : false;
+                        } else if (key === "message") {
+                            chat["msg"] = value;
+                        } else if (key === "chat_time") {
+                            chat["chatTime"] = getChattingDateString(value);
+                        }
+                    }
+
+                    chats.push(chat);
+                }
+
+                socket.emit("roomChatRecord", chats);
+            }
+        );
     });
 
-    socket.on("sendRoomChat", (uid, roomId, msg) => {
-        // db
+    socket.on("sendRoomChat", (uid, nickname, roomId, msg) => {
+        chatModel.sendNewRoomChatting(uid, roomId, msg, (err, results) => {
+            if (err) {
+                console.error("sendRoomChat error: ", err);
+                return;
+            }
 
-        socket
-            .to(roomId)
-            .emit(
-                "receiveRoomChat",
-                uid,
-                "닉네임",
-                msg,
-                getChattingDateStringByDate()
-            );
+            socket
+                .to(roomId)
+                .emit(
+                    "receiveRoomChat",
+                    uid,
+                    nickname,
+                    msg,
+                    getChattingDateStringByDate()
+                );
+        });
     });
 
     socket.on("startConference", (roomId) => {

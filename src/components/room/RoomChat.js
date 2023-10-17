@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import styles from "./RoomChat.module.css";
 import { SocketContext } from "../../context/clientSocket";
 import Chatting from "../Chatting";
@@ -7,14 +7,16 @@ function RoomChat({ uid, nickname, roomId }) {
     const frontSocket = useContext(SocketContext);
     const [msg, setMsg] = useState("");
     const [chatList, setChatList] = useState([]);
-    const [init, setInit] = useState(false);
+    const [init, setInit] = useState(true);
+    const [chatOffset, setChatOffset] = useState(0);
+    const chatRecordRef = useRef(null);
 
     const onChange = (event) => {
         setMsg(event.target.value);
     };
 
     const onClick = () => {
-        frontSocket.emit("sendRoomChat", uid, roomId, msg);
+        frontSocket.emit("sendRoomChat", uid, nickname, roomId, msg);
 
         const currentDate = new Date();
         const year = currentDate.getFullYear();
@@ -46,7 +48,8 @@ function RoomChat({ uid, nickname, roomId }) {
 
     useEffect(() => {
         frontSocket.on("roomChatRecord", (chatObjList) => {
-            setChatList((prev) => [...chatObjList]);
+            chatObjList.reverse();
+            setChatList((prev) => [...chatObjList, ...prev]);
             setInit(true);
         });
 
@@ -68,14 +71,28 @@ function RoomChat({ uid, nickname, roomId }) {
             }
         );
 
-        frontSocket.emit("roomChatRecord", (uid, roomId));
+        frontSocket.emit("roomChatRecord", uid, roomId, 10, chatOffset);
+        setChatOffset((prev) => prev + 10);
     }, []);
+
+    const onChatScroll = () => {
+        const scrollTop = chatRecordRef.current.scrollTop;
+
+        if (scrollTop === 0) {
+            frontSocket.emit("roomChatRecord", uid, roomId, 10, chatOffset);
+            setChatOffset((prev) => prev + 10);
+        }
+    };
 
     return (
         <div className={styles["chatting-container"]}>
             {init ? (
                 <div>
-                    <div className={styles["chat-record"]}>
+                    <div
+                        className={styles["chat-record"]}
+                        ref={chatRecordRef}
+                        onScroll={onChatScroll}
+                    >
                         {chatList.map((chatObj, idx) => (
                             <Chatting
                                 key={idx}

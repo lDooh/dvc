@@ -42,7 +42,7 @@ CREATE TABLE participation (
 );
 
 CREATE TABLE room_chat (
-	room_chat_id		VARCHAR(128)	NOT NULL,
+	room_chat_id		INT	NOT NULL AUTO_INCREMENT,
     room_id				VARCHAR(128)	NOT NULL,
     uid					VARCHAR(128)	NOT NULL,
     message				TEXT			NOT NULL,
@@ -53,7 +53,7 @@ CREATE TABLE room_chat (
 );
 
 CREATE TABLE user_chat (
-	user_chat_id		VARCHAR(128)	NOT NULL,
+	user_chat_id		INT	NOT NULL AUTO_INCREMENT,
     uid1				VARCHAR(128)	NOT NULL,
     uid2				VARCHAR(128)	NOT NULL,
     message				TEXT			NOT NULL,
