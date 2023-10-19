@@ -16,6 +16,12 @@ function RoomChat({ uid, nickname, roomId }) {
     };
 
     const onClick = () => {
+        const currentMsg = msg.trim();
+        if (currentMsg.length === 0) {
+            console.log("메시지를 입력해주세요.");
+            return;
+        }
+
         frontSocket.emit("sendRoomChat", uid, nickname, roomId, msg);
 
         const currentDate = new Date();
@@ -45,6 +51,11 @@ function RoomChat({ uid, nickname, roomId }) {
         ]);
         setMsg("");
     };
+
+    useEffect(() => {
+        // 채팅 스크롤 맨 밑으로 이동
+        chatRecordRef.current.scrollTop = chatRecordRef.current.scrollHeight;
+    });
 
     useEffect(() => {
         frontSocket.on("roomChatRecord", (chatObjList) => {
