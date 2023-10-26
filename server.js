@@ -351,7 +351,7 @@ ioServer.on("connection", (socket) => {
 
                             const nicknameResult =
                                 await userModel.findNicknameByUid(uid);
-                            chat["nickname"] = nicknameResult["state"]
+                            chat["senderNickname"] = nicknameResult["state"]
                                 ? nicknameResult["nickname"]
                                 : undefined;
 

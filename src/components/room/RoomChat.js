@@ -53,11 +53,6 @@ function RoomChat({ uid, nickname, roomId }) {
     };
 
     useEffect(() => {
-        // 채팅 스크롤 맨 밑으로 이동
-        chatRecordRef.current.scrollTop = chatRecordRef.current.scrollHeight;
-    });
-
-    useEffect(() => {
         frontSocket.on("roomChatRecord", (chatObjList) => {
             chatObjList.reverse();
             setChatList((prev) => [...chatObjList, ...prev]);
