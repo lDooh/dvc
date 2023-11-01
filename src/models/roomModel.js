@@ -8,7 +8,7 @@ const crypto = require("crypto");
  * @param {Function} callback
  */
 function createRoom(uid, roomTitle, callback) {
-    const sql = "INSERT INTO room VALUES (?, ?, ?, DEFAULT)";
+    const sql = "INSERT INTO room VALUES (?, ?, ?, DEFAULT, DEFAULT)";
     const pool = db.pool;
     const roomId = crypto.randomUUID();
 
