@@ -1,21 +1,21 @@
 -- SHOW DATABASES;
 
-CREATE DATABASE dvc;
+CREATE DATABASE IF NOT EXISTS dvc;
 
 USE dvc;
 
-CREATE USER 'dvcuser'@'%' IDENTIFIED BY '1234';
+CREATE USER IF NOT EXISTS 'dvcuser'@'%' IDENTIFIED BY '1234';
 GRANT ALL PRIVILEGES ON dvc.* TO 'dvcuser'@'%';
 -- ALTER USER 'dvcuser'@'%' IDENTIFIED WITH mysql_native_password BY '1234';
 
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
 	uid			VARCHAR(128) 	NOT NULL,
     pw			VARCHAR(50)		NULL,
     nickname	VARCHAR(30) 	NOT NULL,
 	PRIMARY KEY (uid)
 );
 
-CREATE TABLE address (
+CREATE TABLE IF NOT EXISTS address (
 	uid1		VARCHAR(128)	NOT NULL,
     uid2		VARCHAR(128)	NOT NULL,
     PRIMARY KEY (uid1, uid2),
@@ -23,7 +23,7 @@ CREATE TABLE address (
     FOREIGN KEY (uid2) REFERENCES user(uid)
 );
 
-CREATE TABLE room (
+CREATE TABLE IF NOT EXISTS room (
 	room_id			VARCHAR(128)	NOT NULL,
     uid				VARCHAR(128)	NOT NULL,
     room_title		VARCHAR(30)		NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE room (
     FOREIGN KEY (uid) REFERENCES user(uid)
 );
 
-CREATE TABLE participation (
+CREATE TABLE IF NOT EXISTS participation (
 	room_id			VARCHAR(128)	NOT NULL,
     uid				VARCHAR(128)	NOT NULL,
     PRIMARY KEY (room_id, uid),
@@ -41,7 +41,7 @@ CREATE TABLE participation (
     FOREIGN KEY (uid) REFERENCES user(uid)
 );
 
-CREATE TABLE room_chat (
+CREATE TABLE IF NOT EXISTS room_chat (
 	room_chat_id		INT	NOT NULL AUTO_INCREMENT,
     room_id				VARCHAR(128)	NOT NULL,
     uid					VARCHAR(128)	NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE room_chat (
     FOREIGN KEY (uid) REFERENCES user(uid)
 );
 
-CREATE TABLE user_chat (
+CREATE TABLE IF NOT EXISTS user_chat (
 	user_chat_id		INT	NOT NULL AUTO_INCREMENT,
     uid1				VARCHAR(128)	NOT NULL,
     uid2				VARCHAR(128)	NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE user_chat (
     FOREIGN KEY (uid2) REFERENCES user(uid)
 );
 
-CREATE TABLE conference_record (
+CREATE TABLE IF NOT EXISTS conference_record (
 	record_id		VARCHAR(30)		NOT NULL,
 	room_id			VARCHAR(30)		NOT NULL,
 	start_time		TIMESTAMP		NOT NULL,
@@ -72,7 +72,7 @@ CREATE TABLE conference_record (
     FOREIGN KEY (room_id) REFERENCES room(room_id)
 );
 
-CREATE TABLE conference_chat (
+CREATE TABLE IF NOT EXISTS conference_chat (
 	conference_chat_id		VARCHAR(128)	NOT NULL,
 	room_id					VARCHAR(30)		NOT NULL,
 	record_id				VARCHAR(30)		NOT NULL,
@@ -84,7 +84,7 @@ CREATE TABLE conference_chat (
     FOREIGN KEY (uid) REFERENCES user(uid)
 );
 
-CREATE TABLE conference_archive (
+CREATE TABLE IF NOT EXISTS conference_archive (
 	archive_id			VARCHAR(30)		NOT NULL,
 	room_id				VARCHAR(30)		NOT NULL,
 	record_id			VARCHAR(30)		NOT NULL,
